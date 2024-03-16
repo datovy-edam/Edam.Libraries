@@ -31,7 +31,8 @@ namespace Edam.Language.Python
          return GetPythonModulesPath() + ppath + scriptName;
       }
 
-      public static void RunScript(string scriptName)
+      public static void RunScript(
+         string scriptName, string methodName, Parameters? parameters = null)
       {
          string mpath = GetPythonModulesPath() + scriptName;
          string ddlPath = GetPythonDllPath();
@@ -40,18 +41,33 @@ namespace Edam.Language.Python
 
          PythonEngine.Initialize();
 
+         // prepare results
+         PyObject? results = null;
+
          // using Python Global Interpreter Lock
          using (Py.GIL())
          {
+            // prepare resources to invoke python methods
             dynamic os = Py.Import("os");
             dynamic sys = Py.Import("sys");
 
             sys.path.append(os.path.dirname(os.path.expanduser(mpath)));
             var fromFile = Py.Import(Path.GetFileNameWithoutExtension(mpath));
-            var result = fromFile.InvokeMethod("say_hello");
 
-            var param = new PyString("something");
-            result = fromFile.InvokeMethod("get_CurrentDirectory", param);
+            // any parameters?
+            if (parameters != null)
+            {
+               // setup parameters
+               var plist = parameters.ToPyObjects();
+
+               // invoke methods and get results...
+               results = fromFile.InvokeMethod(methodName, plist);
+            }
+            else
+            {
+               // invoke methods and get results...
+               results = fromFile.InvokeMethod(methodName);
+            }
             
          }
       }

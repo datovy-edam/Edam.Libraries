@@ -21,7 +21,6 @@ namespace Edam.Test.DataApiBuilder
          Debug.Print("Initialized...");
       }
 
-
       [TestMethod]
       public void TestEntityBuilder()
       {
@@ -45,5 +44,6 @@ namespace Edam.Test.DataApiBuilder
          string jText = builder.ToJson(entities);
          File.WriteAllText("c:/temp/jText.dab.json", jText);
       }
+
    }
 }

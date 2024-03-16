@@ -2,6 +2,7 @@
     [KeyID]        NVARCHAR (40)      NOT NULL,
     [LexiconID]    NVARCHAR (128)     NOT NULL,
     [Category]     NVARCHAR (128)     NOT NULL,
+    [Context]      NVARCHAR (128)     NULL,
     [Term]         NVARCHAR (128)     NOT NULL,
     [OriginalTerm] NVARCHAR (128)     NOT NULL,
     [Soundex]      NVARCHAR (4)       NOT NULL,

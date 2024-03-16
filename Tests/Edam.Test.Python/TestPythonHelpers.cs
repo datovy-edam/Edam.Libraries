@@ -18,7 +18,10 @@ namespace Edam.Test.Python
       [TestMethod]
       public void TestPythonModules()
       {
-         PythonHelper.RunScript(@"python_sample1");
+         string scriptName = @"python_sample1";
+         Parameters parameters = new Parameters();
+         parameters.Add("something", "something");
+         PythonHelper.RunScript(scriptName, "get_CurrentDirectory", parameters);
       }
    }
 }

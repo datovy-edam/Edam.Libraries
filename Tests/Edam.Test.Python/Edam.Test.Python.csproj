@@ -27,7 +27,8 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\Edam.Libraries\Edam.AI\Edam.Language.Python\Edam.Language.Python.csproj" />
+    <ProjectReference Include="..\..\AI\Edam.Language.Python\Edam.Language.Python.csproj" />
+    <ProjectReference Include="..\..\System\Edam.System\Edam.System.csproj" />
     <ProjectReference Include="..\Edam.Test..Library\Edam.Test.Library.csproj" />
   </ItemGroup>
 
