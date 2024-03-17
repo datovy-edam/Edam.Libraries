@@ -1,5 +1,6 @@
 ﻿using Python.Runtime;
 using Edam.Application;
+using System.Dynamic;
 
 namespace Edam.Language.Python
 {
@@ -31,8 +32,14 @@ namespace Edam.Language.Python
          return GetPythonModulesPath() + ppath + scriptName;
       }
 
-      public static void RunScript(
-         string scriptName, string methodName, Parameters? parameters = null)
+      /// <summary>
+      /// Run Python Script and return results.
+      /// </summary>
+      /// <param name="scriptName">python script name</param>
+      /// <param name="functionName">function name</param>
+      /// <param name="parameters">parameters for function</param>
+      public static ReturnResults? RunScript(
+         string scriptName, string functionName, Parameters? parameters = null)
       {
          string mpath = GetPythonModulesPath() + scriptName;
          string ddlPath = GetPythonDllPath();
@@ -42,12 +49,13 @@ namespace Edam.Language.Python
          PythonEngine.Initialize();
 
          // prepare results
-         PyObject? results = null;
+         PyObject? resultsObject = null;
+         ReturnResults? results = new ReturnResults();
 
          // using Python Global Interpreter Lock
          using (Py.GIL())
          {
-            // prepare resources to invoke python methods
+            // prepare resources to invoke python functions
             dynamic os = Py.Import("os");
             dynamic sys = Py.Import("sys");
 
@@ -60,16 +68,20 @@ namespace Edam.Language.Python
                // setup parameters
                var plist = parameters.ToPyObjects();
 
-               // invoke methods and get results...
-               results = fromFile.InvokeMethod(methodName, plist);
+               // invoke functions and get results...
+               resultsObject = fromFile.InvokeMethod(functionName, plist);
             }
             else
             {
-               // invoke methods and get results...
-               results = fromFile.InvokeMethod(methodName);
+               // invoke functions and get results...
+               resultsObject = fromFile.InvokeMethod(functionName);
             }
-            
+
+            results.Results = resultsObject;
+            results.Success = true;
          }
+
+         return results;
       }
    }
 

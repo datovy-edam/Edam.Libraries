@@ -44,7 +44,7 @@ namespace Edam.Test.Dictionary
       public void TestLookupAll()
       {
          FreeDictionaryApi api = new FreeDictionaryApi();
-         api.LookUp(topCount: 10000);
+         api.LookUp(topCount: 50000);
          api.Dispose();
       }
 

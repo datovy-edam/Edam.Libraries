@@ -18,10 +18,12 @@ namespace Edam.Test.Python
       [TestMethod]
       public void TestPythonModules()
       {
-         string scriptName = @"python_sample1";
+         string scriptName = @"semanticTextSimilarity";
          Parameters parameters = new Parameters();
-         parameters.Add("something", "something");
-         PythonHelper.RunScript(scriptName, "get_CurrentDirectory", parameters);
+         parameters.Add("text1", "The person starved");
+         parameters.Add("text2", "The man is starving");
+         PythonHelper.RunScript(
+            scriptName, "get_TextSimilarityScore", parameters);
       }
    }
 }

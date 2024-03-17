@@ -9,8 +9,10 @@
     [Confidence]   DECIMAL (18, 2)    NULL,
     [Definition]   NVARCHAR (MAX)     NOT NULL,
     [Status]       INT                NULL,
-    [CreatedDate]  DATETIMEOFFSET (7) NOT NULL,
-    [UpdatedDate]  DATETIMEOFFSET (7) NOT NULL,
+    [DataOwnerID]  VARCHAR(20)        NULL,
+    [DataSourceID] VARCHAR(20)        NULL,
+    [CreatedDate]  DATETIMEOFFSET (7) NOT NULL DEFAULT SYSDATETIMEOFFSET(),
+    [UpdatedDate]  DATETIMEOFFSET (7) NOT NULL DEFAULT SYSDATETIMEOFFSET(),
     CONSTRAINT [PK_Term] PRIMARY KEY CLUSTERED ([KeyID] ASC)
 );
 

@@ -56,6 +56,7 @@ namespace Edam.Data.Dictionary
             results.Definition = term.Definition;
             results.Soundex = term.Soundex;
             results.Category = term.Category;
+            results.UpdatedDate = DateTimeOffset.Now;
          }
       }
 

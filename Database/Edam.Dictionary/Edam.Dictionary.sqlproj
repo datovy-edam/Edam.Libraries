@@ -74,6 +74,7 @@
     <Build Include="Dictionary\Functions\HasNumberOrSymbol.sql" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="Script\DictionaryUpload.sql" />
+    <None Include="Script\Words_Upload.sql" />
+    <None Include="Script\Glossary_Tab_Delimited_Upload.sql" />
   </ItemGroup>
 </Project>

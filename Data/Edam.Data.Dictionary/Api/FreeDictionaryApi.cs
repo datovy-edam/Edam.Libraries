@@ -168,14 +168,13 @@ namespace Edam.Data.Dictionary.Api
       {
          m_LookupResults.ResultsLog = m_Results;
          var client = m_Client;
-         int sleepMilliSeconds = 100;
+         int sleepMilliSeconds = 300;
 
          try
          {
             int count = 0;
             foreach (var term in terms)
             {
-               System.Threading.Thread.Sleep(sleepMilliSeconds);
                if (!String.IsNullOrWhiteSpace(term.Definition) ||
                   term.Status != EntryStatus.Unknown)
                {
@@ -217,6 +216,8 @@ namespace Edam.Data.Dictionary.Api
                      callBack(m_LookupResults);
                   }
                }
+
+               System.Threading.Thread.Sleep(sleepMilliSeconds);
             }
 
             m_LookupResults.Context.SaveChanges();
