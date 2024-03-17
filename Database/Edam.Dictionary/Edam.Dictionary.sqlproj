@@ -76,5 +76,6 @@
   <ItemGroup>
     <None Include="Script\Words_Upload.sql" />
     <None Include="Script\Glossary_Tab_Delimited_Upload.sql" />
+    <None Include="Script\Free_API_Dictionary_Upload.sql" />
   </ItemGroup>
 </Project>
