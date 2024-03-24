@@ -5,6 +5,8 @@ using System.Text;
 using System.Threading.Tasks;
 using Python.Runtime;
 
+using languages = Edam.Language;
+
 namespace Edam.Language.Python
 {
 
@@ -13,37 +15,10 @@ namespace Edam.Language.Python
    /// </summary>
    public class Parameters
    {
-      private Dictionary<string, Object> m_Items = 
-         new Dictionary<string, Object>();
-
-      /// <summary>
-      /// Add an string value.
-      /// </summary>
-      /// <param name="name">name of parameter</param>
-      /// <param name="value">parameter value</param>
-      public void Add(string name, string value)
+      private languages.Parameters _parameters = null;
+      public Parameters(languages.Parameters parameters)
       {
-         m_Items.Add(name, value);
-      }
-
-      /// <summary>
-      /// Add an integer value.
-      /// </summary>
-      /// <param name="name">name of parameter</param>
-      /// <param name="value">parameter value</param>
-      public void Add(string name, int value)
-      {
-         m_Items.Add(name, value);
-      }
-
-      /// <summary>
-      /// Add an float value.
-      /// </summary>
-      /// <param name="name">name of parameter</param>
-      /// <param name="value">parameter value</param>
-      public void Add(string name, float value)
-      {
-         m_Items.Add(name, value);
+         _parameters = parameters;
       }
 
       /// <summary>
@@ -52,9 +27,9 @@ namespace Edam.Language.Python
       /// <returns>PyObject array is returned</returns>
       public PyObject[] ToPyObjects()
       {
-         PyObject[] result = new PyObject[m_Items.Count];
+         PyObject[] result = new PyObject[_parameters.Items.Count];
          int c = 0;
-         foreach(object item in m_Items.Values)
+         foreach(object item in _parameters.Items.Values)
          {
             var type = item.GetType();
             if (type.Name == "String")

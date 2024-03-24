@@ -1,9 +1,12 @@
-﻿using Python.Runtime;
+﻿using Edam.Diagnostics;
+using Python.Runtime;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+
+using languages = Edam.Language;
 
 // -----------------------------------------------------------------------------
 // https://pythonnet.github.io/pythonnet/dotnet.html
@@ -14,7 +17,7 @@ namespace Edam.Language.Python
    /// <summary>
    /// Encapsulate the Python Intepreter.
    /// </summary>
-   public class Interpreter : IDisposable
+   public class Interpreter : IDisposable, IInterpreter
    {
 
       /// <summary>
@@ -22,13 +25,18 @@ namespace Edam.Language.Python
       /// </summary>
       private Py.GILState? _GIL = null;
 
-      private dynamic? _os = null;
-      private dynamic? _sys = null;
+      private dynamic _os;
+      private dynamic _sys;
+
+      private List<Module> _registeredScripts = new List<Module>();
 
       public Interpreter()
       {
          Runtime.PythonDLL = PythonHelper.GetPythonDllPath();
          PythonEngine.Initialize();
+
+         _os = Py.Import("os");
+         _sys = Py.Import("sys");
       }
 
       /// <summary>
@@ -50,35 +58,87 @@ namespace Edam.Language.Python
       }
 
       /// <summary>
-      /// Get Script with given 
+      /// Get Script using given script name and path.
       /// </summary>
       /// <param name="scriptName">script / module name</param>
       /// <param name="scriptPath">script path (optional)</param>
-      /// <returns></returns>
-      public PyObject? GetScript(string scriptName, string? scriptPath = null)
+      /// <returns>PyObject instance is returned</returns>
+      public Module GetModule(string scriptName, string? scriptPath = null)
       {
          string mpath =
             PythonHelper.GetPythonModulePath(scriptName, scriptPath);
+         var fullPath = Path.GetFileNameWithoutExtension(mpath);
 
-         _os = _os ?? Py.Import("os");
-         _sys = _sys ?? Py.Import("sys");
+         // module already loaded? if so, just return it...
+         Module? module = _registeredScripts.Find((x) => x.Path == fullPath);
+         if (module != null)
+         {
+            return new Module(module.Path, module.Instance);
+         }
 
+         // load new module and register it...
          _sys.path.append(_os.path.dirname(_os.path.expanduser(mpath)));
-         return Py.Import(Path.GetFileNameWithoutExtension(mpath));
+         var mod = Py.Import(fullPath);
+
+         var newModule = new Module(fullPath, mod);
+         _registeredScripts.Add(newModule);
+
+         return newModule;
       }
 
       /// <summary>
       /// Run Script.
       /// </summary>
       /// <param name="scriptName">script name</param>
+      /// <param name="functionName">function name</param>
+      /// <param name="parameters">parameters for function (optional)</param>
       /// <param name="scriptPath">script path (optional)</param>
       /// <returns></returns>
-      public PyObject? RunScript(
-         string scriptName, string? scriptPath = null)
+      public PythonResults RunScript(
+         string scriptName, string functionName, 
+         languages.Parameters? parameters = null, string? scriptPath = null)
       {
          GetLock();
-         PyObject? script = GetScript(scriptName, scriptPath);
-         return script.InvokeMethod(script);
+         Parameters pyParameters = new Parameters(parameters);
+         Module module = GetModule(scriptName, scriptPath);
+
+         PyObject? resultsObject = null;
+         PythonResults? results = new PythonResults();
+
+         // any parameters?
+         if (pyParameters != null)
+         {
+            // setup parameters
+            var plist = pyParameters.ToPyObjects();
+
+            // invoke functions and get results...
+            resultsObject = module.Instance.InvokeMethod(functionName, plist);
+         }
+         else
+         {
+            // invoke functions and get results...
+            resultsObject = module.Instance.InvokeMethod(functionName);
+         }
+
+         results.Results = resultsObject;
+         results.Success = true;
+
+         return results;
+      }
+
+      /// <summary>
+      /// Execute Script.
+      /// </summary>
+      /// <param name="scriptName">script name</param>
+      /// <param name="functionName">function name</param>
+      /// <param name="parameters">parameters for function (optional)</param>
+      /// <param name="scriptPath">script path (optional)</param>
+      /// <returns></returns>
+      public IResultsLog ExecuteScript(
+         string scriptName, string functionName,
+         languages.Parameters? parameters = null, string? scriptPath = null)
+      {
+         return RunScript(scriptName, functionName, parameters, scriptPath);
       }
 
       /// <summary>
@@ -86,6 +146,10 @@ namespace Edam.Language.Python
       /// </summary>
       public void Dispose()
       {
+         if (_registeredScripts != null)
+         {
+            _registeredScripts.Clear();
+         }
          if (_GIL != null)
          {
             _GIL.Dispose();
