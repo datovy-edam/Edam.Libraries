@@ -34,6 +34,15 @@ namespace Edam.Test.Xsd
       }
 
       [TestMethod]
+      public void TestDbXmlOpenToAssets()
+      {
+         ItemBaseInfo item = ProjectHelper.GetProjectItem(
+            "Projects/Datovy.HC.CD/" +
+            "Arguments/0001.HC.CD.Full.ToAssets.Args.json");
+         var presults = ProjectHelper.ProcessItem(item);
+      }
+
+      [TestMethod]
       public void TestWordDivision()
       {
          var result = Edam.Text.Convert.ToTitleCase("ABC_.ThisIsWord");

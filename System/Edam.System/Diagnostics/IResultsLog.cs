@@ -11,6 +11,7 @@ namespace Edam.Diagnostics
 
       Verbosity Verbosity { get; set; }
       Object DataObject { get; }
+      Object ResultValueObject { get; }
       Boolean Success { get; }
       List<IMessageLogEntry> Messages { get; }
       String MessageText { get; }

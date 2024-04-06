@@ -22,6 +22,7 @@ using Edam.Data.Assets.Books;
 using Edam.Data.AssetConsole;
 using Edam.Data.Assets.AssetUseCases;
 using System.IO;
+using Edam.Data.Lexicon;
 
 namespace Edam.Data.AssetUseCases
 {
@@ -71,6 +72,13 @@ namespace Edam.Data.AssetUseCases
             m_Book.Namespace = value;
          }
       }
+
+      /// <summary>
+      /// Allow to manage Semantics will activate the related sentence/text 
+      /// similarities functionality.
+      /// </summary>
+      public LexiconSettingsInfo LexiconSettings { get; set; } = 
+         new LexiconSettingsInfo();
 
       #endregion
       #region -- 1.50 - Constructure

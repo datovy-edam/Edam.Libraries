@@ -8,8 +8,9 @@ using Edam.Application;
 using Edam.Data.Lexicon;
 using Edam.Data.AssetSchema;
 using Edam.Language;
+using Edam.Data.Lexicon.Semantics;
 
-namespace Edam.Data.Assets.Lexicon
+namespace Edam.Data.Lexicon
 {
 
    public class LexiconHelper
@@ -19,6 +20,18 @@ namespace Edam.Data.Assets.Lexicon
       {
          return AppAssembly.FetchInstance<ILexiconData>(
             AssetResourceHelper.ASSET_LEXICON);
+      }
+
+      public static IInterpreter GetInterpreterInstance()
+      {
+         return AppAssembly.FetchInstance<IInterpreter>(
+            AssetResourceHelper.ASSET_PYTHON_LANGUAGE);
+      }
+
+      public static ITextSimilarity GetTextSimilarityInstance()
+      {
+         return AppAssembly.FetchInstance<ITextSimilarity>(
+            TextSimilarity.SEMANTIC_TEXT_SIMILARITY_INSTANCE);
       }
 
    }

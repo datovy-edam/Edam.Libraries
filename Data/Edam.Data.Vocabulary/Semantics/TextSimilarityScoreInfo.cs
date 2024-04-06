@@ -1,15 +1,18 @@
-﻿using Edam.Diagnostics;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
+using Edam.Diagnostics;
+using Edam.Data.Lexicon.Semantics;
+
 namespace Edam.Data.Lexicon.Semantics
 {
 
-   public class TextSimilarityScoreInfo
+   public class TextSimilarityScoreInfo : ITextSimilarityScore
    {
+
       public IResultsLog Results { get; set; }
       public string? Text1 { get; set; } = null;
       public string? Text2 { get; set; } = null;

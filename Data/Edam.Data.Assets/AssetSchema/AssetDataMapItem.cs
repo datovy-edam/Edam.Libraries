@@ -10,6 +10,8 @@ using Newtonsoft.Json;
 using util = Edam.Serialization;
 using Edam.Data.Asset;
 using Edam.Data.Books;
+using Edam.Data.AssetUseCases;
+using Edam.Data.Lexicon;
 
 namespace Edam.Data.AssetSchema
 {
@@ -91,6 +93,20 @@ namespace Edam.Data.AssetSchema
          Description = String.Empty;
          Instructions = String.Empty;
       }
+   }
+
+   public interface IDataMapContext
+   {
+      public object Instance { get; }
+      public string ContextId { get; }
+      public AssetUseCaseMap UseCase { get; set; }
+      public LexiconSettingsInfo LexiconSettings { get; }
+   }
+
+   public class AssetDataLexiconContext
+   {
+      public IDataMapContext DataMapContext { get; set; }
+
    }
 
 }

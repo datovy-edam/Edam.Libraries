@@ -40,7 +40,7 @@ namespace Edam.Language.Python
       /// <param name="scriptName">python script name</param>
       /// <param name="functionName">function name</param>
       /// <param name="parameters">parameters for function</param>
-      public static PythonResults? RunScript(
+      public static PythonResults? ExecuteScript(
          string scriptName, string functionName, 
          languages.Parameters? parameters = null)
       {

@@ -26,12 +26,12 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\Edam.Libraries\Edam.Data\Edam.Data.Assets.Services\Edam.Data.Asset.Services.csproj" />
-    <ProjectReference Include="..\..\Edam.Libraries\Edam.Data\Edam.Data.Assets\Edam.Data.Assets.csproj" />
-    <ProjectReference Include="..\..\Edam.Libraries\Edam.Data\Edam.DataObjects\Edam.DataObjects.csproj" />
-    <ProjectReference Include="..\..\Edam.Libraries\Edam.Data\Edam.Xml\Edam.Xml.csproj" />
-    <ProjectReference Include="..\..\Edam.Libraries\Edam.System\Edam.Security\Edam.Security.csproj" />
-    <ProjectReference Include="..\..\Edam.Libraries\Edam.System\Edam.System\Edam.System.csproj" />
+    <ProjectReference Include="..\..\Data\Edam.Data.Assets.Services\Edam.Data.Asset.Services.csproj" />
+    <ProjectReference Include="..\..\Data\Edam.Data.Assets\Edam.Data.Assets.csproj" />
+    <ProjectReference Include="..\..\Data\Edam.DataObjects\Edam.DataObjects.csproj" />
+    <ProjectReference Include="..\..\Data\Edam.Xml\Edam.Xml.csproj" />
+    <ProjectReference Include="..\..\System\Edam.Security\Edam.Security.csproj" />
+    <ProjectReference Include="..\..\System\Edam.System\Edam.System.csproj" />
     <ProjectReference Include="..\Edam.Test..Library\Edam.Test.Library.csproj" />
   </ItemGroup>
 

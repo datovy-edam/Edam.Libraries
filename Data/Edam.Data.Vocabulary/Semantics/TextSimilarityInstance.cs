@@ -12,7 +12,7 @@ using languages = Edam.Language;
 namespace Edam.Data.Lexicon.Semantics
 {
 
-   public class TextSimilarity : IDisposable
+   public class TextSimilarityInstance : IDisposable, ITextSimilarity
    {
 
       public const string FAILED_DEPENDENCIES_LOADING = 
@@ -24,7 +24,7 @@ namespace Edam.Data.Lexicon.Semantics
 
       private static languages.IInterpreter? _Interpreter;
 
-      public TextSimilarity()
+      public TextSimilarityInstance()
       {
          LoadDependencies();
       }
@@ -58,7 +58,7 @@ namespace Edam.Data.Lexicon.Semantics
       /// <param name="scriptName">python script name</param>
       /// <param name="functionName">function name</param>
       /// <param name="parameters">parameters for function</param>
-      public static IResultsLog? RunScript(
+      public IResultsLog? ExecuteScript(
          string scriptName, string functionName,
          languages.Parameters? parameters = null)
       {
@@ -90,7 +90,7 @@ namespace Edam.Data.Lexicon.Semantics
       /// <param name="text2">text 2</param>
       /// <param name="module">module info (optional)</param>
       /// <returns>comparison results are returned</returns>
-      public static TextSimilarityScoreInfo RunScript( 
+      public static ITextSimilarityScore ExecuteScript( 
          string text1, string text2, ModuleInfo? module = null)
       {
          TextSimilarityScoreInfo scores;
@@ -100,7 +100,8 @@ namespace Edam.Data.Lexicon.Semantics
          mod.PrepareParameters(text1, text2);
 
          // run script...
-         var results = RunScript(
+         var script = new TextSimilarityInstance();
+         var results = script.ExecuteScript(
             mod.ScriptName, mod.MethodName, mod.Parameters);
 
          // any results?

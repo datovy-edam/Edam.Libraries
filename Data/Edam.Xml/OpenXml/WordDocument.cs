@@ -91,8 +91,13 @@ namespace Edam.Xml.OpenXml
       /// <param name="borderValues">border style value</param>
       /// <returns>instance of prepared table is returned</returns>
       public Table PrepareTable(UInt32? fontSize = 12, 
-         BorderValues borderValues = BorderValues.Single)
+         BorderValues? borderValues = null)
       {
+         if (borderValues == null)
+         {
+            borderValues = BorderValues.Single;
+         }
+
          Table table = new Table();
 
          TableProperties props = new TableProperties(
