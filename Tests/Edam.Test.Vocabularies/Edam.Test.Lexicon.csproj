@@ -27,7 +27,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\Edam.Libraries\Edam.Data\Edam.Data.Vocabulary\Edam.Data.Lexicon.csproj" />
+    <ProjectReference Include="..\..\Data\Edam.Data.Vocabulary\Edam.Data.Lexicon.csproj" />
     <ProjectReference Include="..\Edam.Test..Library\Edam.Test.Library.csproj" />
   </ItemGroup>
 

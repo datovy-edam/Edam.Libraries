@@ -32,7 +32,7 @@ using Edam.DataObjects.Documents;
 using ddl = Edam.Data.Schema.SchemaObject;
 using Edam.Data.AssetDb.Readers;
 using Edam.Json.JsonSchema;
-using Edam.Data.Assets.Lexicon;
+using Edam.Data.Lexicon;
 
 namespace Edam.Data.AssetConsole.Services
 {
@@ -483,10 +483,9 @@ namespace Edam.Data.AssetConsole.Services
       public static IResultsLog AssetsToLexiconWorkbook(
          AssetConsoleArgumentsInfo arguments)
       {
-         ResultsLog<object> results = new ResultsLog<object>();
-         var lexiconService = LexiconHelper.GetLexiconDataInstance();
-         var result = lexiconService.ToDatabase(arguments);
-         results.Data = result;
+         ResultLog results = new ResultLog();
+         ILexiconData lexiconService = LexiconHelper.GetLexiconDataInstance();
+         results.ResultValueObject = lexiconService.Export(arguments);
          results.Succeeded();
          return results;
       }

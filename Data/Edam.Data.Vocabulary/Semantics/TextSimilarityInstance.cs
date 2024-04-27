@@ -1,4 +1,5 @@
-﻿using Edam.Application;
+﻿using DocumentFormat.OpenXml.Wordprocessing;
+using Edam.Application;
 using Edam.Diagnostics;
 using Microsoft.EntityFrameworkCore.Metadata;
 using System;
@@ -12,7 +13,7 @@ using languages = Edam.Language;
 namespace Edam.Data.Lexicon.Semantics
 {
 
-   public class TextSimilarityInstance : IDisposable, ITextSimilarity
+   public class TextSimilarityInstance : IDisposable, ITextSimilarityInstance
    {
 
       public const string FAILED_DEPENDENCIES_LOADING = 
@@ -77,7 +78,12 @@ namespace Edam.Data.Lexicon.Semantics
          results = _Interpreter.ExecuteScript(
             scriptName, functionName, parameters);
 
-         return results;
+         ResultLog rlog = new ResultLog();
+         rlog.Copy(results);
+         rlog.ResultValueObject = results.ResultValueObject != null ?
+            new TextSimilarityScoreInfo(results.ResultValueObject) : null;
+
+         return rlog;
       }
 
       /// <summary>

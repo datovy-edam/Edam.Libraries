@@ -18,6 +18,10 @@ namespace Edam.Data.Lexicon.Semantics
       public string? Text2 { get; set; } = null;
       public int Index { get; set; } = -1;
       public float Score { get; set; } = 0;
+      public string ScoreText
+      {
+         get { return Score.ToString("0.0000000000"); }
+      }
 
       /// <summary>
       /// Do score has been instanced?

@@ -12,6 +12,7 @@ using Edam.Data.Asset;
 using Edam.Data.Books;
 using Edam.Data.AssetUseCases;
 using Edam.Data.Lexicon;
+using Edam.Data.AssetConsole;
 
 namespace Edam.Data.AssetSchema
 {
@@ -64,7 +65,68 @@ namespace Edam.Data.AssetSchema
 
       public MapItemType Side { get; set; } = MapItemType.Unknown;
 
-      public MapAnnotationInfo Annotation { get; set; }
+      private MapAnnotationInfo m_Annotation;
+      public MapAnnotationInfo Annotation
+      {
+         get { return m_Annotation ?? GetAnnotation(); }
+         set { m_Annotation = value; }
+      }
+
+      /// <summary>
+      /// Get Annotation.
+      /// </summary>
+      /// <returns>return annotation instance</returns>
+      public MapAnnotationInfo GetAnnotation()
+      {
+         if (m_Annotation != null)
+         {
+            return m_Annotation;
+         }
+
+         string token = string.Empty;
+         string previousToken = string.Empty;
+         string outText = string.Empty;
+
+         m_Annotation = new MapAnnotationInfo();
+         var lt = Path.Split("/");
+
+         foreach (var l in lt)
+         {
+            var it = l.Split(':');
+            token = it.Length == 1 ? it[0] : it[1];
+            token = (outText == string.Empty && token == "dbo") ?
+               string.Empty : token;
+            token = Edam.Text.Convert.ToProperCase(token).Trim();
+
+            // try not to duplicate words...
+            var dt = token.Split(' ');
+            if (previousToken != string.Empty)
+            {
+               if (previousToken == dt[0])
+               {
+                  int cnt = 0;
+                  token = string.Empty;
+                  foreach (var t in dt)
+                  {
+                     if (cnt > 0)
+                     {
+                        token += (token == string.Empty) ? t : " " + t;
+                     }
+                     cnt++;
+                  }
+               }
+            }
+            previousToken = dt[0];
+
+            // prepare out text... appending found words/tokens
+            outText += (outText == string.Empty) ? token : " " + token;
+         }
+
+         m_Annotation.Description = outText;
+
+         return m_Annotation;
+      }
+
    }
 
    /// <summary>
@@ -97,15 +159,41 @@ namespace Edam.Data.AssetSchema
 
    public interface IDataMapContext
    {
-      public object Instance { get; }
-      public string ContextId { get; }
-      public AssetUseCaseMap UseCase { get; set; }
-      public LexiconSettingsInfo LexiconSettings { get; }
+      object Instance { get; }
+      string ContextId { get; }
+      AssetUseCaseMap UseCase { get; set; }
    }
 
-   public class AssetDataLexiconContext
+   public class AssetDataLexiconContext : IDataMapContext, ILexiconContext
    {
-      public IDataMapContext DataMapContext { get; set; }
+
+      private AssetConsoleArgumentsInfo m_Arguments = null;
+
+      public object Instance { get; set; }
+      public string ContextId { get; set; }
+      public AssetUseCaseMap UseCase { get; set; }
+
+      public LexiconSettingsInfo LexiconSettings { get; set; }
+      public ILexiconData LexiconData { get; set; }
+
+      /// <summary>
+      /// Set Lexicon based on provided arguments set.
+      /// </summary>
+      /// <param name="arguments">(optional) console arguments, if none is 
+      /// given the current project arguments will be used</param>
+      public void SetLexicon(AssetConsoleArgumentsInfo arguments)
+      {
+         if (arguments != null && arguments.Lexicon != null)
+         {
+            if (m_Arguments == null || m_Arguments.Lexicon == null  ||
+               m_Arguments.Lexicon.LexiconId != arguments.Lexicon.LexiconId)
+            {
+               m_Arguments = arguments;
+               LexiconData = LexiconHelper.GetLexiconDataInstance();
+               var data = LexiconData.EnsureLoad(arguments);
+            }
+         }
+      }
 
    }
 

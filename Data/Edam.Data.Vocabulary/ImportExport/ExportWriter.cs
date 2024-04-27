@@ -106,9 +106,12 @@ namespace Edam.Data.Lexicon.ImportExport
          eitem.Aliases = String.Empty;
          eitem.Base = item.EntityQualifiedName == null ?
             String.Empty : item.EntityQualifiedName.OriginalName;
-         eitem.Description = String.IsNullOrWhiteSpace(item.Description) ?
-            item.AnnotationText : item.Description;
-         eitem.Notes = String.Empty;
+
+         // TODO: provide option to use Element Name or Description
+         //     : see AddElement also
+         eitem.Description = Text.Convert.ToProperCase(item.ElementName);
+         eitem.Notes = String.IsNullOrWhiteSpace(item.Description) ?
+            item.AnnotationText : item.Description; ;
 
          eitem.KeyID = VerifyKeyId(eitem);
          VerifyReferenceLexicon(eitem);
@@ -169,9 +172,13 @@ namespace Edam.Data.Lexicon.ImportExport
          element.Aliases = String.Empty;
          element.Tags = String.Empty;
          element.Confidence = 1;
-         element.Description = String.IsNullOrWhiteSpace(item.Description) ?
+
+         // TODO: provide option to use Element Name or Description
+         //     : see AddEntity also
+         element.Description = Text.Convert.ToProperCase(element.ElementName);
+         element.Notes = String.IsNullOrWhiteSpace(item.Description) ?
             item.AnnotationText : item.Description;
-         element.Notes = String.Empty;
+
          element.MetadataBag = String.Empty;
 
          element.KeyID = VerifyKeyId(element);

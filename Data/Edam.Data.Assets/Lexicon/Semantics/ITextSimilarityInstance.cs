@@ -13,7 +13,7 @@ namespace Edam.Data.Lexicon.Semantics
    /// <summary>
    /// 
    /// </summary>
-   public interface ITextSimilarity: ISemanticsModule
+   public interface ITextSimilarityInstance: ISemanticsModule
    {
       IResultsLog? ExecuteScript(
          string scriptName, string functionName, Parameters parameters);

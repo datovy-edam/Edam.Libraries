@@ -28,10 +28,10 @@ namespace Edam.Data.Lexicon
             AssetResourceHelper.ASSET_PYTHON_LANGUAGE);
       }
 
-      public static ITextSimilarity GetTextSimilarityInstance()
+      public static ITextSimilarityInstance GetTextSimilarityInstance()
       {
-         return AppAssembly.FetchInstance<ITextSimilarity>(
-            TextSimilarity.SEMANTIC_TEXT_SIMILARITY_INSTANCE);
+         return AppAssembly.FetchInstance<ITextSimilarityInstance>(
+            TextSimilarityService.SEMANTIC_TEXT_SIMILARITY_INSTANCE);
       }
 
    }

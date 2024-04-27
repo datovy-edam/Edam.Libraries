@@ -22,8 +22,8 @@ namespace Edam.Test.Python
       [TestMethod]
       public void TestPythonModules()
       {
-         string scriptName = TextSimilarity.SCRIPT_SEMANTIC_TEXT_SIMILARITY;
-         string methodName = TextSimilarity.METHOD_GET_TEXT_SIMILARITY_SCORE;
+         string scriptName = TextSimilarityService.SCRIPT_SEMANTIC_TEXT_SIMILARITY;
+         string methodName = TextSimilarityService.METHOD_GET_TEXT_SIMILARITY_SCORE;
 
          languages.Parameters parameters = new languages.Parameters();
          parameters.Add("text1", "The person starved");

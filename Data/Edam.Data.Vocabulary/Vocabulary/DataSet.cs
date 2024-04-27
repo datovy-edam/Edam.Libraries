@@ -495,7 +495,8 @@ namespace Edam.Data.Lexicon.Vocabulary
       public void FromLexicon(List<LexiconItemInfo> lexicon)
       {
          Clear();
-         if (lexicon == null || lexicon.Count == 0)
+         if (lexicon == null || lexicon.Count == 0 ||
+            lexicon[0].Areas == null)
          {
             return;
          }

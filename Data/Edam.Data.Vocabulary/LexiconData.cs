@@ -397,9 +397,21 @@ namespace Edam.Data.Lexicon
       /// <returns>returns the list of lexicons</returns>
       public List<LexiconItemInfo> GetLexicons()
       {
-         LexiconContext context = new LexiconContext();
-         var l = context.Lexicon.ToList();
-         return l;
+         ResultLog results = null;
+         LexiconContext context = null;
+         List<LexiconItemInfo> list = null;
+         try
+         {
+            context = new LexiconContext();
+            list = context.Lexicon.ToList();
+         }
+         catch (Exception ex)
+         {
+            results = new ResultLog();
+            results.Failed(ex);
+            list = new List<LexiconItemInfo>();
+         }
+         return list;
       }
 
       public List<AreaItemInfo> GetAreas()

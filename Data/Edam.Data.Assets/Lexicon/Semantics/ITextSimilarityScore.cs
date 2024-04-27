@@ -8,13 +8,14 @@ using System.Threading.Tasks;
 namespace Edam.Data.Lexicon.Semantics
 {
 
-   public class ITextSimilarityScore
+   public interface ITextSimilarityScore
    {
       IResultsLog Results { get; set; }
-      string? Text1 { get; set; } = null;
-      string? Text2 { get; set; } = null;
-      int Index { get; set; } = -1;
-      float Score { get; set; } = 0;
+      string? Text1 { get; set; }
+      string? Text2 { get; set; }
+      int Index { get; set; }
+      float Score { get; set; }
+      string ScoreText { get; }
    }
 
 }
