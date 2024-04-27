@@ -25,7 +25,7 @@ namespace Edam.Data.Lexicon.Semantics
 
       private ITextSimilarityInstance m_Instance;
 
-      public TextSimilarityService() 
+      public TextSimilarityService()
       {
          m_Instance = LexiconHelper.GetTextSimilarityInstance();
       }

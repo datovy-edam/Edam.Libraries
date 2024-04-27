@@ -5,10 +5,6 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Folder Include="Dictionary\" />
-  </ItemGroup>
-
-  <ItemGroup>
     <ProjectReference Include="..\..\System\Edam.System\Edam.System.csproj" />
   </ItemGroup>
 

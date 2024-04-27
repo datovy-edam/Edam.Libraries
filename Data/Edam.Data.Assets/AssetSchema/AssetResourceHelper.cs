@@ -11,8 +11,9 @@ namespace Edam.Data.AssetSchema
       public const string ASSET_DDL_IMPORT_FILE_READER = 
          "DDL.DdlImportFileReader";
       public const string ASSET_MAPPING_LANGUAGE = "AssetMappingLanguage";
-      public const string ASSET_PYTHON_LANGUAGE = "";
+      public const string ASSET_PYTHON_LANGUAGE = "PythonLanguage";
       public const string ASSET_LEXICON = "AssetLexicon";
+      public const string ASSET_DICTIONARY_API = "AssetDictionaryApi";
 
       public const string ASSET_APP_SETTINGS = "APP.SETTINGS";
    }

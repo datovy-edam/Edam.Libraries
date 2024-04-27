@@ -10,11 +10,12 @@ using Edam.Diagnostics;
 using Edam.Serialization;
 using System.Text.Json.Nodes;
 using Newtonsoft.Json.Linq;
+using Edam.Data.Assets.Dictionary;
 
 namespace Edam.Data.Dictionary.Api
 {
 
-   public class FreeDictionaryApi : IDisposable
+   public class FreeDictionaryApi : IDictionaryApi, IDictionary
    {
       public const string BASE_URI = 
          "https://api.dictionaryapi.dev/api/v2/entries/en/";
@@ -26,6 +27,13 @@ namespace Edam.Data.Dictionary.Api
       private ResultsLog<ITermInfo?> m_Results = new ResultsLog<ITermInfo?>();
       private LookUpResultInfo m_LookupResults = new LookUpResultInfo();
 
+      protected DictionaryContext? DictionaryContect
+      {
+         get {
+            return m_LookupResults == null ? null : m_LookupResults.Context;
+         }
+      }
+
       public FreeDictionaryApi()
       {
 
@@ -33,6 +41,67 @@ namespace Edam.Data.Dictionary.Api
       public FreeDictionaryApi(DictionaryContext context)
       {
          m_LookupResults.Context = context;
+      }
+
+      /// <summary>
+      /// Add Term to dictionary.
+      /// </summary>
+      /// <remarks>Remember to call SaveChanges when done adding entries
+      /// </remarks>
+      /// <param name="term">term info to add</param>
+      /// <returns>results log is returned</returns>
+      public ResultsLog<ITermInfo?> AddTerm(ITermInfo term,
+         DictionaryType type = DictionaryType.Term)
+      {
+         ResultsLog<ITermInfo?> results = new ResultsLog<ITermInfo?>();
+
+         return results;
+      }
+
+      /// <summary>
+      /// Get Term from dictionary.
+      /// </summary>
+      /// <param name="term">term to find</param>
+      /// <returns>results log is returned</returns>
+      public ResultsLog<ITermInfo?> FindTerm(ITermInfo term,
+         DictionaryType type = DictionaryType.Term)
+      {
+         ResultsLog<ITermInfo?> results = new ResultsLog<ITermInfo?>();
+
+         return results;
+      }
+
+      /// <summary>
+      /// Remove Term from dictionary.
+      /// </summary>
+      /// <param name="term">term to remove</param>
+      /// <returns>results log is returned</returns>
+      public ResultsLog<ITermInfo?> RemoveTerm(ITermInfo term,
+         DictionaryType type = DictionaryType.Term)
+      {
+         ResultsLog<ITermInfo?> results = new ResultsLog<ITermInfo?>();
+
+         return results;
+      }
+
+      /// <summary>
+      /// Save all dictionary changes...
+      /// </summary>
+      /// <returns></returns>
+      public IResultsLog SaveChanges()
+      {
+         ResultLog results = new ResultLog();
+         var context = DictionaryContect;
+         if (context != null)
+         {
+            context.SaveChanges();
+            results.Succeeded();
+         }
+         else
+         {
+            results.Failed(EventCode.NullInstanceFound);
+         }
+         return results;
       }
 
       /// <summary>
@@ -162,8 +231,8 @@ namespace Edam.Data.Dictionary.Api
       /// <param name="terms">list of ITermInfoes</param>
       /// <param name="callBack">(optional) callBack function</param>
       /// <returns>returns results</returns>
-      public LookUpResultInfo LookUp(
-         List<ITermInfo> terms, Action<LookUpResultInfo> callBack = null,
+      public ILookUpResult LookUp(
+         List<ITermInfo> terms, Action<ILookUpResult> callBack = null,
          int topCount = 0)
       {
          m_LookupResults.ResultsLog = m_Results;
@@ -240,10 +309,10 @@ namespace Edam.Data.Dictionary.Api
       /// Process looked-up entry.
       /// </summary>
       /// <param name="results">found look-up entry</param>
-      private void ProcessLookUpEntry(LookUpResultInfo results)
+      private void ProcessLookUpEntry(ILookUpResult results)
       {
          DictionaryContextHelper.UpsertQueueEntry(
-            results.Context, results.ProcessedTerm);
+            (DictionaryContext)results.ContextInstance, results.ProcessedTerm);
       }
 
       /// <summary>
@@ -251,7 +320,7 @@ namespace Edam.Data.Dictionary.Api
       /// </summary>
       /// <param name="callBack">(optional) call back function</param>
       public void LookUp(
-         Action<LookUpResultInfo> callBack = null, int topCount = 0)
+         Action<ILookUpResult> callBack = null, int topCount = 0)
       {
          var cback = callBack ?? ProcessLookUpEntry;
          var context = new DictionaryContext();

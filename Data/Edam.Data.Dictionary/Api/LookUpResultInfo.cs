@@ -1,17 +1,23 @@
-﻿using Edam.Diagnostics;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
+using Edam.Diagnostics;
+
 namespace Edam.Data.Dictionary.Api
 {
 
-   public class LookUpResultInfo
+   public class LookUpResultInfo : ILookUpResult
    {
 
       public DictionaryContext Context { get; set; } = null;
+      public Object ContextInstance
+      {
+         get { return Context; }
+      }
+
       public IResultsLog ResultsLog { get; set; } = new ResultLog();
 
       public ITermInfo CurrentTerm { get; set; } = null;
@@ -28,6 +34,7 @@ namespace Edam.Data.Dictionary.Api
          Acknowleged = 0;
          NotAcknowledge = 0;
       }
+
    }
 
 }
