@@ -15,7 +15,7 @@ using Edam.Data.Assets.Dictionary;
 namespace Edam.Data.Dictionary.Api
 {
 
-   public class FreeDictionaryApi : IDictionaryApi, IDictionary
+   public class FreeDictionaryApi : IDictionaryApi
    {
       public const string BASE_URI = 
          "https://api.dictionaryapi.dev/api/v2/entries/en/";
@@ -27,13 +27,6 @@ namespace Edam.Data.Dictionary.Api
       private ResultsLog<ITermInfo?> m_Results = new ResultsLog<ITermInfo?>();
       private LookUpResultInfo m_LookupResults = new LookUpResultInfo();
 
-      protected DictionaryContext? DictionaryContect
-      {
-         get {
-            return m_LookupResults == null ? null : m_LookupResults.Context;
-         }
-      }
-
       public FreeDictionaryApi()
       {
 
@@ -44,64 +37,14 @@ namespace Edam.Data.Dictionary.Api
       }
 
       /// <summary>
-      /// Add Term to dictionary.
+      /// Return dictionaries interface that allow adding, removing, and 
+      /// finding items
       /// </summary>
-      /// <remarks>Remember to call SaveChanges when done adding entries
-      /// </remarks>
-      /// <param name="term">term info to add</param>
-      /// <returns>results log is returned</returns>
-      public ResultsLog<ITermInfo?> AddTerm(ITermInfo term,
-         DictionaryType type = DictionaryType.Term)
+      /// <returns>instance of dictionaries instance is returned if any 
+      /// is available</returns>
+      public IDictionaries? GetDictionaries()
       {
-         ResultsLog<ITermInfo?> results = new ResultsLog<ITermInfo?>();
-
-         return results;
-      }
-
-      /// <summary>
-      /// Get Term from dictionary.
-      /// </summary>
-      /// <param name="term">term to find</param>
-      /// <returns>results log is returned</returns>
-      public ResultsLog<ITermInfo?> FindTerm(ITermInfo term,
-         DictionaryType type = DictionaryType.Term)
-      {
-         ResultsLog<ITermInfo?> results = new ResultsLog<ITermInfo?>();
-
-         return results;
-      }
-
-      /// <summary>
-      /// Remove Term from dictionary.
-      /// </summary>
-      /// <param name="term">term to remove</param>
-      /// <returns>results log is returned</returns>
-      public ResultsLog<ITermInfo?> RemoveTerm(ITermInfo term,
-         DictionaryType type = DictionaryType.Term)
-      {
-         ResultsLog<ITermInfo?> results = new ResultsLog<ITermInfo?>();
-
-         return results;
-      }
-
-      /// <summary>
-      /// Save all dictionary changes...
-      /// </summary>
-      /// <returns></returns>
-      public IResultsLog SaveChanges()
-      {
-         ResultLog results = new ResultLog();
-         var context = DictionaryContect;
-         if (context != null)
-         {
-            context.SaveChanges();
-            results.Succeeded();
-         }
-         else
-         {
-            results.Failed(EventCode.NullInstanceFound);
-         }
-         return results;
+         return m_LookupResults == null ? null : m_LookupResults.Context;
       }
 
       /// <summary>
