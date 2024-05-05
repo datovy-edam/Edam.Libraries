@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 namespace Edam.Data.Dictionary
 {
 
-   public class DictionaryEntryInfo
+   public class DictionaryItemInfo
    {
 
       public bool Include { get; set; } = false;

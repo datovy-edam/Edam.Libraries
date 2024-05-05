@@ -135,17 +135,17 @@ namespace Edam.Data.Dictionary
          {
             case DictionaryType.Term:
                var items = FindTermItem(term);
-               results.ResultValueObject = items.ToList<ITermInfo>();
+               results.Data = items.ToList<ITermInfo>();
                results.Succeeded();
                break;
             case DictionaryType.Word:
                var words = FindWordItem(term);
-               results.ResultValueObject = words.ToList<ITermInfo>();
+               results.Data = words.ToList<ITermInfo>();
                results.Succeeded();
                break;
             case DictionaryType.Queue:
                var queueItems = FindQueueItem(term);
-               results.ResultValueObject = queueItems.ToList<ITermInfo>();
+               results.Data = queueItems.ToList<ITermInfo>();
                results.Succeeded();
                break;
             default:
@@ -154,6 +154,20 @@ namespace Edam.Data.Dictionary
          }
 
          return results;
+      }
+
+      /// <summary>
+      /// Find Term given as a string.
+      /// </summary>
+      /// <param name="term">string / term to find</param>
+      /// <param name="type">dictionary type</param>
+      /// <returns>returns a list of found matching terms</returns>
+      public ResultsLog<List<ITermInfo>> FindTerm(
+         string term, DictionaryType type = DictionaryType.Term)
+      {
+         TermInfo termi = new TermInfo();
+         termi.Term = term;
+         return FindTerm(termi, type);
       }
 
       /// <summary>

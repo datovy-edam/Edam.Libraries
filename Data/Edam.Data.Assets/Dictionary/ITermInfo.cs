@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 namespace Edam.Data.Dictionary
 {
 
-   public interface ITermInfo
+   public interface ITermBaseInfo
    {
       string LexiconID { get; set; }
       string KeyID { get; set; }
@@ -19,11 +19,17 @@ namespace Edam.Data.Dictionary
       string Definition { get; set; }
 
       EntryStatus? Status { get; set; }
+      string StatusText { get; }
+
+      void Copy(ITermBaseInfo term);
+   }
+
+   public interface ITermInfo : ITermBaseInfo
+   {
 
       DateTimeOffset CreatedDate { get; set; }
       DateTimeOffset UpdatedDate { get; set; }
 
-      void Copy(ITermInfo term);
    }
 
 }

@@ -34,7 +34,13 @@ namespace Edam.Data.Dictionary
       public DateTimeOffset CreatedDate { get; set; } = DateTimeOffset.Now;
       public DateTimeOffset UpdatedDate { get; set; } = DateTimeOffset.Now;
 
-      public void Copy(ITermInfo term)
+      [NotMapped]
+      public string StatusText
+      {
+         get { return Status.ToString(); }
+      }
+
+      public void Copy(ITermBaseInfo term)
       {
          LexiconID = term.LexiconID;
          KeyID = term.KeyID;
@@ -44,8 +50,8 @@ namespace Edam.Data.Dictionary
          Confidence = term.Confidence;
          Definition = term.Definition;
          Status = term.Status;
-         CreatedDate = term.CreatedDate;
-         UpdatedDate = term.UpdatedDate;
+         //CreatedDate = term.CreatedDate;
+         //UpdatedDate = term.UpdatedDate;
       }
 
    }
@@ -75,7 +81,13 @@ namespace Edam.Data.Dictionary
       public DateTimeOffset CreatedDate { get; set; } = DateTimeOffset.Now;
       public DateTimeOffset UpdatedDate { get; set; } = DateTimeOffset.Now;
 
-      public void Copy(ITermInfo term)
+      [NotMapped]
+      public string StatusText
+      {
+         get { return Status.ToString(); }
+      }
+
+      public void Copy(ITermBaseInfo term)
       {
          LexiconID = term.LexiconID;
          KeyID = term.KeyID;
@@ -85,8 +97,8 @@ namespace Edam.Data.Dictionary
          Confidence = term.Confidence;
          Definition = term.Definition;
          Status = term.Status;
-         CreatedDate = term.CreatedDate;
-         UpdatedDate = term.UpdatedDate;
+         //CreatedDate = term.CreatedDate;
+         //UpdatedDate = term.UpdatedDate;
       }
 
    }
@@ -116,7 +128,13 @@ namespace Edam.Data.Dictionary
       public DateTimeOffset CreatedDate { get; set; } = DateTimeOffset.Now;
       public DateTimeOffset UpdatedDate { get; set; } = DateTimeOffset.Now;
 
-      public void Copy(ITermInfo term)
+      [NotMapped]
+      public string StatusText
+      {
+         get { return Status.ToString(); }
+      }
+
+      public void Copy(ITermBaseInfo term)
       {
          LexiconID = term.LexiconID;
          KeyID = term.KeyID;
@@ -126,8 +144,8 @@ namespace Edam.Data.Dictionary
          Confidence = term.Confidence;
          Definition = term.Definition;
          Status = term.Status;
-         CreatedDate = term.CreatedDate;
-         UpdatedDate = term.UpdatedDate;
+         //CreatedDate = term.CreatedDate;
+         //UpdatedDate = term.UpdatedDate;
       }
 
    }

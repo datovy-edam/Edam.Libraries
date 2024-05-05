@@ -144,6 +144,8 @@
     <Folder Include="Scripts" />
     <Folder Include="Scripts\Sql-Scripts" />
     <Folder Include="Scripts\PowerScripts" />
+    <Folder Include="Data\Views" />
+    <Folder Include="Data\Functions" />
   </ItemGroup>
   <ItemGroup>
     <Build Include="Object\Tables\ObjectLanguages.sql">
@@ -609,6 +611,10 @@
     <Build Include="Security\Permissions.sql" />
     <Build Include="Security\KifMasterKey.sql" />
     <None Include="Scripts\PowerScripts\rdb.ps1" />
+    <Build Include="Data\Functions\EntityDetailFunc.sql" />
+    <Build Include="Data\Views\EntityElementConstraintView.sql" />
+    <Build Include="Data\Views\EntityDetailView.sql" />
+    <Build Include="Data\Views\EntityElementDetailView.sql" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Scripts\Sql-Scripts\00010 - Objects Resources.sql" />

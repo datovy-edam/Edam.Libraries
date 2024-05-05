@@ -25,7 +25,7 @@ namespace Edam.Data.Dictionary
       public static IDictionaryApi GetDictionaryApiInstance()
       {
          return AppAssembly.FetchInstance<IDictionaryApi>(
-            AssetResourceHelper.ASSET_PYTHON_LANGUAGE);
+            AssetResourceHelper.ASSET_DICTIONARY_API);
       }
 
       /// <summary>
@@ -35,12 +35,12 @@ namespace Edam.Data.Dictionary
       /// <param name="entries">entries list to add found items</param>
       /// <param name="type">dictionary to look entries in...</param>
       /// <returns></returns>
-      public static List<DictionaryEntryInfo> GetSentenceTerms(
-         string sentence, List<DictionaryEntryInfo> entries = null,
+      public static List<DictionaryItemInfo> GetSentenceTerms(
+         string sentence, List<DictionaryItemInfo> entries = null,
          DictionaryType type = DictionaryType.Term)
       {
-         List<DictionaryEntryInfo> items = 
-            entries ?? new List<DictionaryEntryInfo>();
+         List<DictionaryItemInfo> items = 
+            entries ?? new List<DictionaryItemInfo>();
 
          var api = GetDictionaryApiInstance();
          var dic = api.GetDictionaries();
@@ -74,7 +74,7 @@ namespace Edam.Data.Dictionary
                }
 
                // prepare new entry and add it to the list
-               var eitem = new DictionaryEntryInfo();
+               var eitem = new DictionaryItemInfo();
 
                eitem.Entry = entry;
                eitem.OriginalEntry = entry;

@@ -37,6 +37,20 @@ namespace Edam.Data.Dictionary.Api
       }
 
       /// <summary>
+      /// Set Context as needed.
+      /// </summary>
+      /// <returns>context is returned</returns>
+      public DictionaryContext SetContext()
+      {
+         if (m_LookupResults.Context == null)
+         {
+            m_LookupResults.Context = new DictionaryContext();
+            m_LookupResults.Context.Database.EnsureCreated();
+         }
+         return m_LookupResults.Context;
+      }
+
+      /// <summary>
       /// Return dictionaries interface that allow adding, removing, and 
       /// finding items
       /// </summary>
@@ -44,6 +58,7 @@ namespace Edam.Data.Dictionary.Api
       /// is available</returns>
       public IDictionaries? GetDictionaries()
       {
+         SetContext();
          return m_LookupResults == null ? null : m_LookupResults.Context;
       }
 
@@ -266,8 +281,7 @@ namespace Edam.Data.Dictionary.Api
          Action<ILookUpResult> callBack = null, int topCount = 0)
       {
          var cback = callBack ?? ProcessLookUpEntry;
-         var context = new DictionaryContext();
-         context.Database.EnsureCreated();
+         var context = SetContext();
          var entries = context.WordQueue.ToList<ITermInfo>();
          FreeDictionaryApi api = new FreeDictionaryApi(context);
          api.LookUp(entries, cback, topCount);
