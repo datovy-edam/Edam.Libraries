@@ -318,6 +318,8 @@ namespace Edam.Data.Schema.ImportExport
             originalDataType = elementName;
          }
 
+         // TODO: store AssetDataElement precision and scale in the database
+
          // prepare asset element...
          QualifiedNameInfo typeQName = new QualifiedNameInfo(dataType);
          AssetElementInfo<IAssetElement> a = new AssetElementInfo<IAssetElement>
@@ -335,13 +337,15 @@ namespace Edam.Data.Schema.ImportExport
             ElementType = ElementType.element,
             KeyType = item.IsPrimaryKey ?
                ConstraintType.key : ConstraintType.nonkey,
-            AutoGenerateType = item.IsIdentity ? 
+            AutoGenerateType = item.IsIdentity ?
                ConstraintType.autoGenerate : ConstraintType.none,
             IsNillable = !item.IsPrimaryKey,
             TypeQualifiedName = typeQName,
             OriginalName = elementOriginalName,
             OriginalDataType = originalDataType,
-            Tags = item.Tags == null ? String.Empty : item.Tags
+            Tags = item.Tags == null ? String.Empty : item.Tags,
+            Precision = item.Precision.HasValue ? item.Precision.Value : 0,
+            Scale = item.Scale.HasValue ? item.Scale.Value : 0
          };
 
          a.Annotation.Clear();

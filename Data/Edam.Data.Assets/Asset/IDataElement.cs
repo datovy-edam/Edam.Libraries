@@ -90,6 +90,9 @@ namespace Edam.Data.Asset
 
       DataElementKind Kind { get; set; }
 
+      int? Precision { get; set; }
+      int? Scale { get; set; }
+
       AssetDataElement DeepCopy();
    }
 }

@@ -414,6 +414,9 @@ namespace Edam.Data.AssetManagement
       public string TypeEntityName { get; set; }
       public DataTextElementInfo MapElement { get; set; }
 
+      public int? Precision { get; set; }
+      public int? Scale { get; set; }
+
       public virtual DataGroupItemInfo GroupItemTypeNoNavigation { get; set; }
       public virtual DataReferenceStatus StatusNoNavigation { get; set; }
       public virtual DataElementInfo TypeNoNavigation { get; set; }

@@ -89,6 +89,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Edam.Tests.WebApi", "Tests\
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Edam.Test.Xsd", "Tests\Edam.Test.Xsd\Edam.Test.Xsd.csproj", "{0635C82C-7422-4050-AF45-E20760EE1415}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Edam.Test.AssetReports", "Tests\Edam.Test.AssetReports\Edam.Test.AssetReports.csproj", "{5FD200A6-516C-4606-82E9-8BDF0C698F19}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -243,6 +245,10 @@ Global
 		{0635C82C-7422-4050-AF45-E20760EE1415}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{0635C82C-7422-4050-AF45-E20760EE1415}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{0635C82C-7422-4050-AF45-E20760EE1415}.Release|Any CPU.Build.0 = Release|Any CPU
+		{5FD200A6-516C-4606-82E9-8BDF0C698F19}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{5FD200A6-516C-4606-82E9-8BDF0C698F19}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{5FD200A6-516C-4606-82E9-8BDF0C698F19}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{5FD200A6-516C-4606-82E9-8BDF0C698F19}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -285,6 +291,7 @@ Global
 		{96868357-E2F9-4B72-901C-D93AC7C00CC4} = {F3B53FFB-9917-454F-A867-26B26A432016}
 		{C07E373D-36DD-4168-B72C-5B8758E43997} = {F3B53FFB-9917-454F-A867-26B26A432016}
 		{0635C82C-7422-4050-AF45-E20760EE1415} = {F3B53FFB-9917-454F-A867-26B26A432016}
+		{5FD200A6-516C-4606-82E9-8BDF0C698F19} = {F3B53FFB-9917-454F-A867-26B26A432016}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {3D6025DC-0E09-4AB2-85AD-1FC8E43F2EA5}

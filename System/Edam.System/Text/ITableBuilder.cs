@@ -7,11 +7,30 @@ using Edam.Text;
 namespace Edam.Text
 {
 
+   public interface ITableHeaderItem
+   {
+      string ItemName { get; set; }
+      string ElementName { get; set; }
+      string Name { get; set; }
+      string Description { get; set; }
+      string Format { get; set; }
+      object Value { get; set; }
+
+      void Validate();
+   }
+
+   public interface ITableRowHeader
+   {
+      List<ITableHeaderItem> Items { get; set; }
+   }
+
    public interface ITableBuilder
    {
+
       String Name { get; set; }
       TableBuilderType Type { get; set; }
       IResultsLog Results { get; set; }
+      ITableRowHeader RowHeader { get; set; }
 
       ITableBuilder AppendRow(
          String text, String delimeter = ",", UInt32 styleNo = 0U);

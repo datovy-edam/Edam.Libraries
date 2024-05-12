@@ -13,6 +13,8 @@ namespace Edam.Text
       private string m_Delimiter = DEFAULT_DELIMITER;
       private int m_ColumnIndex = 0;
 
+      public ITableRowHeader RowHeader { get; set; }
+
       public String Name { get; set; }
       public TableBuilderType Type { get; set; }
 

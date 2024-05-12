@@ -12,6 +12,7 @@ using Edam.Diagnostics;
 using Edam.Text;
 using Edam.Data.AssetUseCases;
 using Edam.Data.AssetSchema;
+using Edam.Data.Assets.AssetReport;
 
 namespace Edam.Data.AssetReport
 {
@@ -32,13 +33,13 @@ namespace Edam.Data.AssetReport
 
       private const string CLASS_NAME = "AssetReportBuilder";
       private const string TYPE_OBJECT = "object";
-      private const string TYPE_TYPE = "type";
-      private const string TYPE_ROOT = "root";
-      private const string ENUM = "enumerator";
       private const string DATETIME_FORMAT = "yyyy-mm-dd HH:mm:ss";
       private const string ACTIVE = "Active";
 
+      private ITableBuilder _Builder;
+
       public AssetReportOptions Options = new AssetReportOptions();
+      public AssetReportHeaderInfo Header = new AssetReportHeaderInfo();
 
       #endregion
       #region -- 1.20 - Constructor / Destructure
@@ -49,6 +50,11 @@ namespace Edam.Data.AssetReport
 
       #endregion
       #region -- 4.00 - Report Builder Support
+
+      public object GetInstance()
+      {
+         return this;
+      }
 
       public static string GetDateTimeText(DateTime time)
       {
@@ -132,65 +138,51 @@ namespace Edam.Data.AssetReport
       /// Append table cells.
       /// </summary>
       /// <param name="builder"></param>
-      /// <param name="asset"></param>
+      /// <param name="item"></param>
       public static void AppendTableCells(
-         ITableBuilder builder, IAssetElement asset)
+         ITableBuilder builder, IAssetElement item)
       {
-         string etype = asset.ElementType.ToString();
-         string value = string.IsNullOrWhiteSpace(asset.DefaultValue) ?
-            string.Empty : asset.DefaultValue;
-         string typeName = asset.DataType ?? asset.TypeName;
-         string occurs = asset.Occurs.Replace(" ", "");
-
-         string entity = asset.EntityQualifiedName == null ? string.Empty :
-            asset.EntityQualifiedName.Name;
-         string element = (asset.ElementType == ElementType.attribute ?
-            "@" : string.Empty) + asset.ElementQualifiedName.Name;
-
-         // get annotation
-         string annotation = AssetDataElement.GetAnnotattion(asset);
-
-         // set row style...
-         uint styleNo;
-         if (etype.ToLower() == TYPE_TYPE || etype.ToLower() == TYPE_ROOT)
-         {
-            styleNo = (uint)TableRowStyle.Fill4Border1Font12;
-         }
-         else if (etype.ToLower() == ENUM)
-         {
-            styleNo = (uint)TableRowStyle.Fill1Border1Font12;
-         }
-         else
-            styleNo = (uint)TableRowStyle.Fill1Font12;
-
-         builder.SetStyleNo(styleNo);
-
-         // write hidden cells
          // (asset: 0 is eq to a null asset; status: 0 eq active)
 
-         if (!asset.AssetStatus.HasValue)
-            asset.AssetStatus = 1;
-         if (!asset.LastUpdateDate.HasValue)
-            asset.LastUpdateDate = DateTime.UtcNow;
+         if (!item.AssetStatus.HasValue)
+            item.AssetStatus = 1;
+         if (!item.LastUpdateDate.HasValue)
+            item.LastUpdateDate = DateTime.UtcNow;
 
-         builder.AppendRowCell(asset.ElementNo.ToString());
-         builder.AppendRowCell(asset.AssetStatus?.ToString());
-         builder.AppendRowCell(asset.LastUpdateDate?.ToString());
+         // prepare mapper
+         ElementMapper mapper = new ElementMapper(item, builder.RowHeader);
+
+         // set row style...
+         builder.SetStyleNo(mapper.RowStyle);
+
+         // first try to append row header cell values (if any found)
+         if (mapper.GetValues() > 0)
+         {
+            foreach(var header in builder.RowHeader.Items)
+            {
+               builder.AppendRowCell(header.Value.ToString());
+            }
+            return;
+         }
+
+         // write hidden cells
+         builder.AppendRowCell(mapper.ElementNo);
+         builder.AppendRowCell(mapper.ItemStatus);
+         builder.AppendRowCell(mapper.LastUpdateDate);
 
          // write row cells
-         builder.AppendRowCell(entity);                       // Entity
-         builder.AppendRowCell(element);                      // Element
-         builder.AppendRowCell(value);                        // Value (default)
-         builder.AppendRowCell(typeName);                     // Type
-         builder.AppendRowCell(asset.ElementType.ToString()); // ElementType
-         builder.AppendRowCell(asset.Length.HasValue ?
-            asset.Length.Value.ToString() : string.Empty);    // Length
-         builder.AppendRowCell(occurs);                       // 1:1
-         builder.AppendRowCell(asset.CommentText);            // Data Owner
-         builder.AppendRowCell(annotation);
-         builder.AppendRowCell(asset.SampleValue);            // Liu, Jin
-         builder.AppendRowCell(asset.Namespace);              // (some URI)
-         builder.AppendRowCell(asset.GetFullPath());
+         builder.AppendRowCell(mapper.Entity);                // Entity
+         builder.AppendRowCell(mapper.Element);               // Element
+         builder.AppendRowCell(mapper.Value);                 // Value (default)
+         builder.AppendRowCell(mapper.DataType);              // DataType
+         builder.AppendRowCell(mapper.ElementType);           // ElementType
+         builder.AppendRowCell(mapper.MaxLength);             // MaxLength
+         builder.AppendRowCell(mapper.Occurrence);            // 1:1
+         builder.AppendRowCell(mapper.Comments);              // Comments
+         builder.AppendRowCell(mapper.Annotation);
+         builder.AppendRowCell(mapper.SampleValue);           // Liu, Jin
+         builder.AppendRowCell(mapper.URI);                   // (some URI)
+         builder.AppendRowCell(mapper.FullPath);
       }
 
       #endregion
@@ -404,12 +396,10 @@ namespace Edam.Data.AssetReport
       /// Get Header...
       /// </summary>
       /// <returns></returns>
-      private static string GetMainHeader()
+      private string GetMainHeader()
       {
          // prepare headers...
-         return "AssetNo,AssetStatus,LastUpdateDate," +
-            "Entity,Element,Value,Type,ElementType,Length,Occurs,Comment," +
-            "Annotation,Sample,Namespace,FullPath";
+         return Header.GetCommaDelimitedHeaders();
       }
 
       /// <summary>
@@ -417,6 +407,8 @@ namespace Edam.Data.AssetReport
       /// </summary>
       /// <param name="builder"></param>
       /// <param name="columns"></param>
+      /// <param name="headerText">a comma delimited string or a file path that
+      /// ends with ".json"</param>
       public void AppendMainHeader(ITableBuilder builder,
          TableColumnsInfo columns, string headerText = null, 
          uint rowStyle = (uint)TableRowStyle.Fill3Border1Font14)
@@ -443,7 +435,7 @@ namespace Edam.Data.AssetReport
       /// </summary>
       /// <param name="builder">instance of table builder</param>
       /// <param name="report">report information</param>
-      private static void AppendAssetItems(
+      private void AppendAssetItems(
          ITableBuilder builder, AssetReportInfo report)
       {
          // AddDefaultColumns(builder);
@@ -463,7 +455,6 @@ namespace Edam.Data.AssetReport
          foreach (var i in report.Items)
          {
             AppendTableCells(builder, i);
-            string header = GetMainHeader();
             builder.AppendRowCellLast(null);
 
             if (i.ElementType == ElementType.enumerator)
@@ -491,6 +482,8 @@ namespace Edam.Data.AssetReport
          }
 
          ITableBuilder builder = GetBuilder(file);
+         builder.RowHeader = Header;
+         _Builder = builder;
          builder.Name = "Dictionary";
 
          // add Use Cases

@@ -52,6 +52,10 @@ namespace Edam.Data.AssetSchema
       string TypeName { get; }
       string DataType { get; set; }
       decimal? Length { get; }
+
+      int? Precision { get; set; }
+      int? Scale { get; set; }
+
       ConstraintType KeyType { get; set; }
       ConstraintType AutoGenerateType { get; set; }
       ElementType ElementType { get; set; }
