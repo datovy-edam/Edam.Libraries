@@ -7,6 +7,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Edam.Text;
+using Edam.Data.AssetManagement;
 
 namespace Edam.Data.Assets.AssetReport
 {
@@ -23,13 +24,24 @@ namespace Edam.Data.Assets.AssetReport
       private const string TAG_CONFIDENTIAL = "Confidential";
 
       private IAssetElement _Element;
-      private ITableRowHeader _Header;
+      private ITableReport _Report;
+      private ITableRowHeader _RowHeader { get; set; }
+      private DataTextMap _TextMap;
 
       private Type _Type;
+
+      public Func<string> EntityNameFunc { get; set; }
+      public Func<string> ElementNameFunc { get; set; }
+      public Func<string> ElementDataTypeFunc { get; set; }
 
       public string Annotation
       {
          get { return AssetDataElement.GetAnnotattion(_Element); }
+      }
+
+      public string BusinessArea
+      {
+         get { return _Element.Domain; }
       }
 
       public string ItemStatus
@@ -44,7 +56,15 @@ namespace Edam.Data.Assets.AssetReport
 
       public string DataType
       {
-         get { return _Element.DataType ?? _Element.TypeName; }
+         get { return GetDataType(_Element.DataType ?? _Element.TypeName); }
+      }
+
+      public string Entity
+      {
+         get
+         {
+            return EntityNameFunc();
+         }
       }
 
       public string EntityQualifiedNameText
@@ -52,17 +72,12 @@ namespace Edam.Data.Assets.AssetReport
          get { return _Element.EntityQualifiedNameText; }
       }
 
-      public string ElementQualifiedNameText
-      {
-         get { return (_Element.ElementType == asset.ElementType.attribute ?
-            "@" : string.Empty) + _Element.ElementQualifiedNameText; }
-      }
-
-      public string Entity
+      public string EntityName
       {
          get
          {
-            return EntityQualifiedNameText;
+            return _Element.EntityQualifiedName == null ?
+               String.Empty : _Element.EntityQualifiedName.OriginalName;
          }
       }
 
@@ -70,7 +85,16 @@ namespace Edam.Data.Assets.AssetReport
       {
          get
          {
-            return ElementQualifiedNameText;
+            return ElementNameFunc();
+         }
+      }
+
+      public string ElementQualifiedNameText
+      {
+         get
+         {
+            return (_Element.ElementType == asset.ElementType.attribute ?
+            "@" : string.Empty) + _Element.ElementQualifiedNameText;
          }
       }
 
@@ -82,6 +106,14 @@ namespace Edam.Data.Assets.AssetReport
       public string ElementType
       {
          get { return _Element.ElementType.ToString(); }
+      }
+
+      public string ElementName
+      {
+         get
+         {
+            return _Element.ElementQualifiedName.OriginalName;
+         }
       }
 
       public string FullPath
@@ -198,12 +230,44 @@ namespace Edam.Data.Assets.AssetReport
       /// Initialize Mapper
       /// </summary>
       /// <param name="item"></param>
-      /// <param name="header"></param>
-      public ElementMapper(IAssetElement item, ITableRowHeader header)
+      /// <param name="report"></param>
+      /// <param name="textMapping"></param>
+      public ElementMapper(
+         IAssetElement item, ITableReport report, DataTextMap textMapping)
       {
          _Element = item;
-         _Header = header;
+         _Report = report ?? new ReportInfo();
+         _RowHeader = report.RowHeader;
          _Type = this.GetType();
+         _TextMap = textMapping;
+
+         if (report.Options.ShowFullyQualifiedNames)
+         {
+            EntityNameFunc = () => { return EntityQualifiedNameText; };
+            ElementNameFunc = () => { return ElementQualifiedNameText; };
+         }
+         else
+         {
+            EntityNameFunc = () => { return EntityName; };
+            ElementNameFunc = () => { return ElementName; };
+         }
+      }
+
+      private string GetDataType(string typeName)
+      {
+         if (_TextMap == null)
+         {
+            return typeName;
+         }
+         var val = _TextMap.MapText(typeName, DataTextMapDirection.To);
+         if (val == null || string.IsNullOrWhiteSpace(val))
+         {
+            if (_Element.QualifiedTypeNames.Count > 0)
+            {
+               val = _Element.QualifiedTypeNames[0].OriginalName;
+            }
+         }
+         return val;
       }
 
       /// <summary>
@@ -213,7 +277,17 @@ namespace Edam.Data.Assets.AssetReport
       /// <returns>text value is returned</returns>
       public string GetValueText(string propertyName)
       {
-         return _Type.GetProperty(propertyName).GetValue(this, null).ToString();
+         var prop = _Type.GetProperty(propertyName);
+         if (prop == null)
+         {
+            return String.Empty;
+         }
+         var value = prop.GetValue(this, null);
+         if (value == null)
+         {
+            return String.Empty;
+         }
+         return value.ToString();
       }
 
       /// <summary>
@@ -226,8 +300,9 @@ namespace Edam.Data.Assets.AssetReport
       public int GetValues()
       {
          int cnt = 0;
-         foreach(var item in _Header.Items)
+         foreach(var item in _RowHeader.Items)
          {
+            item.Value = String.Empty;
             var value = GetValueText(item.ItemName);
             if (String.IsNullOrWhiteSpace(value))
             {

@@ -141,7 +141,7 @@ namespace Edam.Json.JsonSchema
             Extension = InOut.FileExtension.CSV
          };
 
-         asset.ToOutput(f);
+         asset.ToOutput(f, null);
       }
 
       public static IResultsLog ToFile(

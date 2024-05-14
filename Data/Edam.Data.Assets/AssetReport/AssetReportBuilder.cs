@@ -13,18 +13,13 @@ using Edam.Text;
 using Edam.Data.AssetUseCases;
 using Edam.Data.AssetSchema;
 using Edam.Data.Assets.AssetReport;
+using Edam.Data.AssetConsole;
+using Edam.TextParse;
+using System.Xml.Linq;
+using Edam.Data.AssetProject;
 
 namespace Edam.Data.AssetReport
 {
-
-   public class AssetReportOptions
-   {
-      public bool OnlyUseCaseEntries { get; set; }
-      public AssetReportOptions()
-      {
-         OnlyUseCaseEntries = false;
-      }
-   }
 
    public class AssetReportBuilder
    {
@@ -36,10 +31,15 @@ namespace Edam.Data.AssetReport
       private const string DATETIME_FORMAT = "yyyy-mm-dd HH:mm:ss";
       private const string ACTIVE = "Active";
 
+      private ITableReport _ReportDetails;
       private ITableBuilder _Builder;
 
-      public AssetReportOptions Options = new AssetReportOptions();
-      public AssetReportHeaderInfo Header = new AssetReportHeaderInfo();
+      public ITableRowHeader RowHeader
+      {
+         get { return _ReportDetails.RowHeader; }
+      }
+
+      private DataTextMap _TypeTextMap;
 
       #endregion
       #region -- 1.20 - Constructor / Destructure
@@ -139,8 +139,10 @@ namespace Edam.Data.AssetReport
       /// </summary>
       /// <param name="builder"></param>
       /// <param name="item"></param>
+      /// <param name="typeMapper"></param>
       public static void AppendTableCells(
-         ITableBuilder builder, IAssetElement item)
+         ITableBuilder builder, IAssetElement item, 
+         DataTextMap typeMapper = null)
       {
          // (asset: 0 is eq to a null asset; status: 0 eq active)
 
@@ -150,7 +152,8 @@ namespace Edam.Data.AssetReport
             item.LastUpdateDate = DateTime.UtcNow;
 
          // prepare mapper
-         ElementMapper mapper = new ElementMapper(item, builder.RowHeader);
+         ElementMapper mapper = 
+            new ElementMapper(item, builder.ReportDetails, typeMapper);
 
          // set row style...
          builder.SetStyleNo(mapper.RowStyle);
@@ -158,7 +161,7 @@ namespace Edam.Data.AssetReport
          // first try to append row header cell values (if any found)
          if (mapper.GetValues() > 0)
          {
-            foreach(var header in builder.RowHeader.Items)
+            foreach(var header in builder.ReportDetails.RowHeader.Items)
             {
                builder.AppendRowCell(header.Value.ToString());
             }
@@ -399,7 +402,36 @@ namespace Edam.Data.AssetReport
       private string GetMainHeader()
       {
          // prepare headers...
-         return Header.GetCommaDelimitedHeaders();
+         return RowHeader.GetCommaDelimitedHeaders();
+      }
+
+      /// <summary>
+      /// Get-Set Report Details instance...
+      /// </summary>
+      /// <param name="report"></param>
+      private ITableReport GetReportDetails(ITableReport report)
+      {
+         if (_ReportDetails == null)
+         {
+            _ReportDetails = report;
+         }
+
+         // load external header file?
+         if (report.Options != null)
+         {
+            _ReportDetails.RowHeader = TableRowHeaderInfo.FromJson(
+               report.Options.RowHeaderFilePath);
+         }
+
+         _ReportDetails.ReportHeader = GetMainHeader();
+
+         if (_TypeTextMap == null && report.Options != null && 
+            !String.IsNullOrWhiteSpace(report.Options.TypeMapFilePath))
+         {
+            _TypeTextMap = DataTextMap.FromFile(report.Options.TypeMapFilePath);
+         }
+
+         return _ReportDetails;
       }
 
       /// <summary>
@@ -410,7 +442,7 @@ namespace Edam.Data.AssetReport
       /// <param name="headerText">a comma delimited string or a file path that
       /// ends with ".json"</param>
       public void AppendMainHeader(ITableBuilder builder,
-         TableColumnsInfo columns, string headerText = null, 
+         TableRowHeaderInfo columns, string headerText = null, 
          uint rowStyle = (uint)TableRowStyle.Fill3Border1Font14)
       {
          string header = string.IsNullOrWhiteSpace(headerText) ?
@@ -418,7 +450,7 @@ namespace Edam.Data.AssetReport
 
          // add additional columns to append in each row
          List<string> items = new List<string>();
-         foreach (var c in columns.Headers)
+         foreach (var c in columns.Items)
          {
             items.Add(c.Name);
          }
@@ -436,10 +468,16 @@ namespace Edam.Data.AssetReport
       /// <param name="builder">instance of table builder</param>
       /// <param name="report">report information</param>
       private void AppendAssetItems(
-         ITableBuilder builder, AssetReportInfo report)
+         ITableBuilder builder, ReportInfo report)
       {
+         GetReportDetails(report);
+
          // AddDefaultColumns(builder);
-         builder.AddColumns(hidden: true, count: 3);
+         if (!report.IsCustomReport)
+         {
+            builder.AddColumns(hidden: true, count: 3);
+         }
+
          builder.AddWorksheet("Dictionary");
          builder.AppendMainHeader(report.AssetCustomColumns.ToList(), 
             report.ReportHeader);
@@ -454,7 +492,7 @@ namespace Edam.Data.AssetReport
          // write data
          foreach (var i in report.Items)
          {
-            AppendTableCells(builder, i);
+            AppendTableCells(builder, i, _TypeTextMap);
             builder.AppendRowCellLast(null);
 
             if (i.ElementType == ElementType.enumerator)
@@ -470,9 +508,9 @@ namespace Edam.Data.AssetReport
       /// <param name="file">Output File Information</param>
       /// <param name="report">report information</param>
       /// <returns>report data as a string is returned.</returns>
-      public string ToWorkbookFile(FileInfo file, AssetReportInfo report)
+      public string ToWorkbookFile(FileInfo file, ReportInfo report)
       {
-         report.ReportHeader = GetMainHeader();
+         GetReportDetails(report);
 
          string func = "ToWorkbookFile";
          if (string.IsNullOrWhiteSpace(file.Path))
@@ -482,7 +520,7 @@ namespace Edam.Data.AssetReport
          }
 
          ITableBuilder builder = GetBuilder(file);
-         builder.RowHeader = Header;
+         builder.ReportDetails = report;
          _Builder = builder;
          builder.Name = "Dictionary";
 
@@ -530,6 +568,42 @@ namespace Edam.Data.AssetReport
          }
 
          return data;
+      }
+
+      /// <summary>
+      /// To Work book file...
+      /// </summary>
+      /// <param name="arguments">arguments with at least one Asset Data
+      /// avilable</param>
+      public static void ToWorkbookFile(AssetConsoleArgumentsInfo arguments)
+      {
+         AssetData asset = arguments.AssetDataItems[0];
+         AssetDataElementList items = asset.Items;
+         TableRowHeaderInfo columns = new TableRowHeaderInfo();
+
+         // prepare report details...
+         ReportInfo report = new ReportInfo
+         {
+            Namespaces = asset.Namespaces,
+            Items = items,
+            AssetCustomColumns = columns,
+            UseCases = asset.UseCases ?? new AssetUseCaseList(),
+            UseCaseColumns = asset.UseCaseColumns,
+            UseCasesMergedItems = asset.UseCasesMergedItems,
+            Options = arguments.Report
+         };
+
+         string currDirectory = System.IO.Directory.GetCurrentDirectory();
+         try
+         {
+            Project.GotoProject(arguments);
+            AssetReportBuilder b = new AssetReportBuilder();
+            b.ToWorkbookFile(arguments.OutputFile, report);
+         }
+         finally
+         {
+            System.IO.Directory.SetCurrentDirectory(currDirectory);
+         }
       }
 
       #endregion

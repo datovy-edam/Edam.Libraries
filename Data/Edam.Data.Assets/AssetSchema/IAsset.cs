@@ -33,6 +33,7 @@ namespace Edam.Data.AssetSchema
       string ElementQualifiedNameText { get; set; }
       QualifiedNameInfo ElementQualifiedName { get; set; }
 
+      string Domain { get; set; }
       string Namespace { get; set; }
       string DefaultValue { get; set; }
       string FixedValue { get; set; }

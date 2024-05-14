@@ -246,7 +246,7 @@ namespace Edam.Data.Schema.DataDefinitionLanguage
          f.Name = String.Empty;
          f.Extension = InOut.FileExtension.CSV;
 
-         asset.ToOutput(f);
+         asset.ToOutput(f, null);
       }
 
       public static void ToFile(AssetConsoleArgumentsInfo arguments)

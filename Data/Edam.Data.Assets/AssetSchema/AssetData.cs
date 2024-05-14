@@ -51,7 +51,7 @@ namespace Edam.Data.AssetSchema
       #region -- 1.00 - Properties and Fields for Use Case Management
 
       protected AssetUseCaseList m_UseCases { get; set; }
-      protected TableColumnsInfo m_UseCaseColumns { get; set; }
+      protected TableRowHeaderInfo m_UseCaseColumns { get; set; }
       protected List<AssetUseCaseElement> m_UseCasesMergedItems;
 
       public AssetUseCaseList UseCases
@@ -60,7 +60,7 @@ namespace Edam.Data.AssetSchema
          set { m_UseCases = value; }
       }
 
-      public TableColumnsInfo UseCaseColumns
+      public TableRowHeaderInfo UseCaseColumns
       {
          get { return m_UseCaseColumns; }
          set { m_UseCaseColumns = value; }
@@ -123,7 +123,7 @@ namespace Edam.Data.AssetSchema
       public AssetData(NamespaceInfo ns, AssetType type, string versionId)
       {
          m_Items = new AssetDataElementList(ns, type, versionId);
-         m_UseCaseColumns = new TableColumnsInfo();
+         m_UseCaseColumns = new TableRowHeaderInfo();
          DefaultNamespace = ns;
          VersionId = versionId;
       }
@@ -132,7 +132,7 @@ namespace Edam.Data.AssetSchema
       {
          m_Items = new AssetDataElementList(items);
          m_Items = items;
-         m_UseCaseColumns = new TableColumnsInfo();
+         m_UseCaseColumns = new TableRowHeaderInfo();
          m_DefaultNamespace = items.Namespace;
          VersionId = items.VersionId;
       }
@@ -222,7 +222,7 @@ namespace Edam.Data.AssetSchema
       {
          Items.AddRange(asset.Items);
          NamespaceInfo.Merge(Namespaces, asset.Namespaces);
-         m_UseCaseColumns.Add(asset.UseCaseColumns.Headers);
+         m_UseCaseColumns.Add(asset.UseCaseColumns.Items);
 
          m_UseCases = new AssetUseCaseList();
          if (asset.UseCases != null)
@@ -387,7 +387,7 @@ namespace Edam.Data.AssetSchema
       /// <param name="element">element to be added</param>
       private void UseCaseItemAdd(
          List<AssetDataElement> items,
-         TableColumnsInfo columns, AssetDataElement element)
+         TableRowHeaderInfo columns, AssetDataElement element)
       {
          // add item to Use Cases Merged Items (Asset Items not necessarily part
          // of or relevant for the Use Case.
@@ -411,12 +411,12 @@ namespace Edam.Data.AssetSchema
       /// Reconcile Use Cases and return Assets Report information...
       /// </summary>
       /// <returns>output instance of AssetReportInfo</returns>
-      public AssetReportInfo ReconcileUseCases()
+      public ReportInfo ReconcileUseCases()
       {
          List<AssetDataElement> itms =
             new List<AssetDataElement>();
 
-         TableColumnsInfo columns = new TableColumnsInfo();
+         TableRowHeaderInfo columns = new TableRowHeaderInfo();
 
          // make a copy of the Asset Items (elements) these Items may or may not
          // be included in the Use Case...
@@ -441,13 +441,13 @@ namespace Edam.Data.AssetSchema
          }
 
          //var columns = m_UseCaseColumns.Headers.Count == 0 ?
-         if (m_UseCases.Count > 0 && m_UseCaseColumns.Headers.Count == 0)
+         if (m_UseCases.Count > 0 && m_UseCaseColumns.Items.Count == 0)
          {
             m_UseCaseColumns = m_UseCases[0].Instructions.Columns;
          }
 
          // prepare report details...
-         AssetReportInfo report = new AssetReportInfo
+         ReportInfo report = new ReportInfo
          {
             Namespaces = Namespaces,
             Items = itms,
@@ -517,10 +517,12 @@ namespace Edam.Data.AssetSchema
       /// Given file details prepare an Asset Report.
       /// </summary>
       /// <param name="file">file details</param>
+      /// <param name="options">report options</param>
       /// <returns>asset as a string that was reported</returns>
-      public String ToOutput(InOut.FileInfo file)
+      public String ToOutput(InOut.FileInfo file, ReportOptions options)
       {
          var report = ReconcileUseCases();
+         report.Options = options;
          AssetReportBuilder b = new AssetReportBuilder();
          return b.ToWorkbookFile(file, report);
       }
@@ -528,7 +530,8 @@ namespace Edam.Data.AssetSchema
       /// <summary>
       /// Output to a database with info given in the arguements.
       /// </summary>
-      /// <param name="arguments">arguments</param>
+      /// <param name="items">items</param>
+      /// <param name="ns">namespace info</param>
       public static AssetDataElementList ToDataElement(
          AssetDataElementList items, NamespaceInfo ns)
       {
@@ -623,7 +626,7 @@ namespace Edam.Data.AssetSchema
          {
             // the proper way to output will be figured out based on
             // output file extension... (see AssetReportBuilder::GetBuilder)
-            ToOutput(arguments.OutputFile);
+            ToOutput(arguments.OutputFile, arguments.Report);
          }
          else if (arguments.ToDatabase)
          {

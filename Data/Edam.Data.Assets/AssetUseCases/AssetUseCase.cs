@@ -62,10 +62,10 @@ namespace Edam.Data.AssetUseCases
       /// available</param>
       /// <returns>list of AssetUseCaseElement(s) is returned</returns>
       public List<AssetUseCaseElement> ToUseCaseElementList(
-         TableColumnsInfo columns)
+         TableRowHeaderInfo columns)
       {
          List<AssetUseCaseElement> l = new List<AssetUseCaseElement>();
-         var cols = columns == null ? new TableColumnsInfo() : columns;
+         var cols = columns == null ? new TableRowHeaderInfo() : columns;
          foreach (var i in Items)
          {
             if (i.ProcessInstructionsBag != null)
@@ -93,7 +93,7 @@ namespace Edam.Data.AssetUseCases
       /// <param name="cases">list of use cases</param>
       /// <returns>use cases list</returns>
       public static List<AssetUseCaseElement> MergeUseCases(
-         List<AssetUseCase> cases, TableColumnsInfo columns)
+         List<AssetUseCase> cases, TableRowHeaderInfo columns)
       {
          List<AssetUseCaseElement> r = new List<AssetUseCaseElement>();
          if (cases == null)

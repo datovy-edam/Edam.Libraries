@@ -13,7 +13,7 @@ namespace Edam.Text
       private string m_Delimiter = DEFAULT_DELIMITER;
       private int m_ColumnIndex = 0;
 
-      public ITableRowHeader RowHeader { get; set; }
+      public ITableReport ReportDetails { get; set; }
 
       public String Name { get; set; }
       public TableBuilderType Type { get; set; }
@@ -109,7 +109,7 @@ namespace Edam.Text
          throw new NotImplementedException();
       }
 
-      public void AppendTabColumnsRow(string tabName, TableColumnsInfo columns)
+      public void AppendTabColumnsRow(string tabName, TableRowHeaderInfo columns)
       {
          throw new NotImplementedException();
       }

@@ -21,8 +21,8 @@ namespace Edam.Data.AssetUseCases
       public const string USE_CASE_HEADER = "UseCase";
       public const string USE_CASES_LABEL = "Use Cases";
 
-      private AssetReportInfo m_Report = new AssetReportInfo();
-      public AssetReportInfo Report
+      private ReportInfo m_Report = new ReportInfo();
+      public ReportInfo Report
       {
          get { return m_Report; }
       }
@@ -53,11 +53,11 @@ namespace Edam.Data.AssetUseCases
       /// <param name="useCaseElement"></param>
       private static void AppendUseCaseProcessingInstructions(
          ITableBuilder builder, AssetDataElement element,
-         TableColumnsInfo columns)
+         TableRowHeaderInfo columns)
       {
          if (element.ProcessInstructionsBag == null)
          {
-            for (var i = 0; i < columns.Headers.Count; i++)
+            for (var i = 0; i < columns.Items.Count; i++)
             {
                builder.AppendRowCell(null);
             }
@@ -65,7 +65,7 @@ namespace Edam.Data.AssetUseCases
          }
 
          // write columns in the order specified by the columns 
-         foreach (var col in columns.Headers)
+         foreach (var col in columns.Items)
          {
             foreach (var c in element.ProcessInstructionsBag.Items)
             {
@@ -85,7 +85,7 @@ namespace Edam.Data.AssetUseCases
       /// <param name="report">report details dependent on its implementation
       /// </param>
       public static void AppendUseCases(
-         ITableBuilder builder, AssetReportInfo report)
+         ITableBuilder builder, ReportInfo report)
       {
          // TODO: remove hardcoded (3) value...
          builder.AddColumns(hidden: true, count: 3);
@@ -113,10 +113,10 @@ namespace Edam.Data.AssetUseCases
       #region -- 4.00 - Use Case Map Item Support
 
       public static int SetupMapItemsHeader(
-         ITableBuilder builder, AssetReportInfo report)
+         ITableBuilder builder, ReportInfo report)
       {
          // prepare left side column header... (light blue)
-         TableColumnsInfo columns = new TableColumnsInfo();
+         TableRowHeaderInfo columns = new TableRowHeaderInfo();
          var itemsHeader = columns.AddCommaDelimitedHeader(
             report.ReportHeader, false, (uint)TableRowStyle.Fill3Border1Font14);
 
@@ -140,7 +140,7 @@ namespace Edam.Data.AssetUseCases
 
          // renumber indexes...
          int indx = 1;
-         foreach(var c in columns.Headers)
+         foreach(var c in columns.Items)
          {
             c.Index = indx;
             indx++;
@@ -179,7 +179,7 @@ namespace Edam.Data.AssetUseCases
       /// <param name="report">report details dependent on its implementation
       /// </param>
       public static void AppendUseCaseMapItems(
-         ITableBuilder builder, AssetReportInfo report)
+         ITableBuilder builder, ReportInfo report)
       {
          int targetCount = SetupMapItemsHeader(builder, report);
 
@@ -227,7 +227,7 @@ namespace Edam.Data.AssetUseCases
       /// </summary>
       /// <param name="file">output file information</param>
       /// <returns>report string is returned</returns>
-      public string ToOutput(InOut.FileInfo file)
+      private string ToOutput(InOut.FileInfo file)
       {
          AssetReportBuilder b = new AssetReportBuilder();
          return b.ToWorkbookFile(file, m_Report);
@@ -241,16 +241,21 @@ namespace Edam.Data.AssetUseCases
       /// <param name="item">asset data details</param>
       /// <param name="useCases">list of Use Cases</param>
       public static void ToOutput(
-         InOut.FileInfo file, AssetData item, AssetUseCaseList useCases)
+         InOut.FileInfo file, AssetData item, AssetUseCaseList useCases,
+         ReportOptions options = null)
       {
          AssetUseCaseReport helper = new AssetUseCaseReport(useCases);
 
          helper.Report.Namespaces = item.Namespaces;
          helper.Report.Items = item.Items;
-         helper.Report.AssetCustomColumns = new TableColumnsInfo();
+         helper.Report.AssetCustomColumns = new TableRowHeaderInfo();
          helper.Report.UseCaseColumns = helper.Report.AssetCustomColumns;
          helper.Report.UseCasesMergedItems = null;
          helper.Report.UseCases = useCases;
+
+         helper.Report.Options =
+            options != null && options.UseForUseCaseReport ?
+               options : null;
 
          helper.ToOutput(file);
       }

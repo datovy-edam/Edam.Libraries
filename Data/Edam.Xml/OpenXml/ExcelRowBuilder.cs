@@ -26,6 +26,8 @@ namespace Edam.Xml.OpenXml
 
       public IResultsLog Results { get; set; }
 
+      public ITableReport ReportDetails { get; set; }
+
       public ExcelRowBuilder(ExcelDocument document)
       {
          m_Document = document ?? new ExcelDocument();
@@ -115,10 +117,10 @@ namespace Edam.Xml.OpenXml
       /// Add columns and related row using given columns info.
       /// </summary>
       /// <param name="columns">columns details</param>
-      public void AppendTabColumnsRow(string tabName, TableColumnsInfo columns)
+      public void AppendTabColumnsRow(string tabName, TableRowHeaderInfo columns)
       {
          // add columns
-         foreach(var c in columns.Headers)
+         foreach(var c in columns.Items)
          {
             if (c.Hidden)
             {
@@ -135,7 +137,7 @@ namespace Edam.Xml.OpenXml
 
          // add row
          uint columnIndex = 1;
-         foreach (var i in columns.Headers)
+         foreach (var i in columns.Items)
          {
             var header = i.Name.Trim();
             m_Document.InsertCellText(

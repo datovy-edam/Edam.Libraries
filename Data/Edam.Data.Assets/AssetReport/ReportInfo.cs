@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 
 // -----------------------------------------------------------------------------
 using Edam.Data.Asset;
+using Edam.Data.AssetConsole;
 using Edam.Data.AssetSchema;
 using Edam.Data.AssetUseCases;
 using Edam.DataObjects.DataCodes;
@@ -17,7 +18,7 @@ namespace Edam.Data.AssetReport
    /// <summary>
    /// Asset Report Information
    /// </summary>
-   public class AssetReportInfo
+   public class ReportInfo : ITableReport
    {
 
       public List<NamespaceInfo> Namespaces { get; set; }
@@ -28,8 +29,13 @@ namespace Edam.Data.AssetReport
       // to report on the code sets...
       public List<AssetDataElement> CodeSetItems { get; set; }
 
+      /// <summary>
+      /// Row Header
+      /// </summary>
+      public ITableRowHeader RowHeader { get; set; }
+
       // custom columns to support
-      public TableColumnsInfo AssetCustomColumns { get; set; }
+      public TableRowHeaderInfo AssetCustomColumns { get; set; }
 
       public bool PrepareNamespacesTab { get; set; }
       public bool PrepareEnumSummaryTab { get; set; }
@@ -46,6 +52,11 @@ namespace Edam.Data.AssetReport
       public string ReportHeader { get; set; }
 
       /// <summary>
+      /// Report Options...
+      /// </summary>
+      public ITableReportOptions Options { get; set; }
+
+      /// <summary>
       /// List of all Use Cases
       /// </summary>
       public AssetUseCaseList UseCases { get; set; }
@@ -53,14 +64,28 @@ namespace Edam.Data.AssetReport
       /// <summary>
       /// List of Reporting Elements / Column - Headers
       /// </summary>
-      public TableColumnsInfo UseCaseColumns { get; set; }
+      public TableRowHeaderInfo UseCaseColumns { get; set; }
 
       /// <summary>
       /// This are the Use Case merged items...
       /// </summary>
       public List<AssetUseCaseElement> UseCasesMergedItems { get; set; }
 
-      public AssetReportInfo()
+      /// <summary>
+      /// (Optional) Row Header JSON file path definition.
+      /// </summary>
+      public string RowHeaderJsonFilePath { get; set; } = null;
+
+      public bool IsCustomReport
+      {
+         get
+         {
+            return Options != null && 
+               !String.IsNullOrWhiteSpace(Options.RowHeaderFilePath);
+         }
+      }
+
+      public ReportInfo()
       {
          PrepareNamespacesTab = false;
          PrepareEnumSummaryTab = false;

@@ -46,6 +46,7 @@ namespace Edam.Data.AssetConsole
       public LexiconInfo Lexicon { get; set; } = new LexiconInfo();
       public prj.ProjectInfo Project { get; set; }
       public ProcessInfo Process { get; set; }
+      public ReportOptions Report { get; set; }
       public AssetArgumentOptions Options { get; set; }
 
       [JsonIgnore]

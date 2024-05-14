@@ -504,7 +504,8 @@ namespace Edam.Data.AssetUseCases
             list = ToAssetUseCase(useCaseFolderPath, mapper);
 
             // prepare the report...
-            AssetUseCaseReport.ToOutput(args.OutputFile, adata, list);
+            AssetUseCaseReport.ToOutput(args.OutputFile, adata, list,
+               args.Report);
          }
          catch
          {
