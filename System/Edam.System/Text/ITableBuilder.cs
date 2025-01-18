@@ -32,6 +32,7 @@ namespace Edam.Text
       bool UseForAssetReport { get; set; }
       bool UseForUseCaseReport { get; set; }
       bool OnlyUseCaseEntries { get; set; }
+      bool SetElementTypeAsEntity { get; set; }
    }
 
    public interface ITableRowHeader

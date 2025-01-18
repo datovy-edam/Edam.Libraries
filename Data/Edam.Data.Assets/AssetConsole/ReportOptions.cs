@@ -35,6 +35,12 @@ namespace Edam.Data.AssetConsole
       /// </summary>
       public bool OnlyUseCaseEntries { get; set; } = false;
 
+      /// <summary>
+      /// true to set elements that are type as an entity... will show type
+      /// name in the Entity Column not the Element Column.
+      /// </summary>
+      public bool SetElementTypeAsEntity { get; set; } = false;
+
    }
 
 }

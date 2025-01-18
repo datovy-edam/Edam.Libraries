@@ -57,6 +57,8 @@ namespace Edam.Data.AssetSchema
       int? Precision { get; set; }
       int? Scale { get; set; }
 
+      bool IsType { get; }
+
       ConstraintType KeyType { get; set; }
       ConstraintType AutoGenerateType { get; set; }
       ElementType ElementType { get; set; }

@@ -23,8 +23,8 @@ namespace Edam.Test.AssetReports
       public void PrepareWorkbook()
       {
          ItemBaseInfo item = ProjectHelper.GetProjectItem(
-            "Projects/Datovy.HC.CD/" +
-            "Arguments/0002.HC.CD.Custom.ToDictionary.Args.json");
+            "Projects/CalTrans_OLP/" +
+            "Arguments/0002.Olp.Custom.ToDictionary.Args.json");
          ResultsLog<object> presults = ProjectHelper.ProcessItem(item);
 
          if (!presults.Success)

@@ -57,6 +57,11 @@ namespace Edam.Text
       public string GetCommaDelimitedHeaders()
       {
          string csv = String.Empty;
+         if (Items.Count == 0)
+         {
+            return DEFAULT_MAIN_HEADER;
+         }
+
          foreach (var item in Items)
          {
             csv += csv == String.Empty ?

@@ -241,18 +241,55 @@ namespace Edam.Data.Assets.AssetReport
          _Type = this.GetType();
          _TextMap = textMapping;
 
-         if (report.Options.ShowFullyQualifiedNames)
+         var useQNames = report.Options != null && 
+            report.Options.ShowFullyQualifiedNames;
+         if (useQNames)
          {
             EntityNameFunc = () => { return EntityQualifiedNameText; };
             ElementNameFunc = () => { return ElementQualifiedNameText; };
          }
+         else if (_Element.IsType)
+         {
+            if (_Report.Options != null && 
+               _Report.Options.SetElementTypeAsEntity)
+            {
+               EntityNameFunc = () => { return TrimLast(ElementName, "_"); };
+               ElementNameFunc = () => { return String.Empty; };
+            }
+            else
+            {
+               EntityNameFunc = () => { return EntityName; };
+               ElementNameFunc = () => { return TrimLast(ElementName, "_"); };
+            }
+         }
          else
          {
-            EntityNameFunc = () => { return EntityName; };
+            EntityNameFunc = () => { return TrimLast(EntityName, "_"); };
             ElementNameFunc = () => { return ElementName; };
          }
       }
 
+      /// <summary>
+      /// Trim last character if simmilar to given text to trim.
+      /// </summary>
+      /// <param name="text"></param>
+      /// <param name="textToTrimLast"></param>
+      /// <returns></returns>
+      private string TrimLast(string text, string textToTrimLast)
+      {
+         string outText = text;
+         if (text.EndsWith(textToTrimLast))
+         {
+            outText = text.Remove(text.Length - textToTrimLast.Length);
+         }
+         return outText;
+      }
+
+      /// <summary>
+      /// Get Data Type.
+      /// </summary>
+      /// <param name="typeName"></param>
+      /// <returns>return data type text</returns>
       private string GetDataType(string typeName)
       {
          if (_TextMap == null)

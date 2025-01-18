@@ -32,7 +32,6 @@ namespace Edam.Data.AssetReport
       private const string ACTIVE = "Active";
 
       private ITableReport _ReportDetails;
-      private ITableBuilder _Builder;
 
       public ITableRowHeader RowHeader
       {
@@ -246,7 +245,8 @@ namespace Edam.Data.AssetReport
          foreach (var i in items)
          {
             AppendTableCells(builder, i, count, time);
-            builder.AppendRowCellLast(null);
+            //builder.AppendRowCellLast(null);
+            builder.AppendRowCellLast();
             count++;
          }
 
@@ -411,13 +411,12 @@ namespace Edam.Data.AssetReport
       /// <param name="report"></param>
       private ITableReport GetReportDetails(ITableReport report)
       {
-         if (_ReportDetails == null)
-         {
-            _ReportDetails = report;
-         }
+         _ReportDetails ??= report;
+         _ReportDetails.RowHeader ??= new TableRowHeaderInfo();
 
          // load external header file?
-         if (report.Options != null)
+         if (report.Options != null && 
+            !String.IsNullOrWhiteSpace(report.Options.RowHeaderFilePath))
          {
             _ReportDetails.RowHeader = TableRowHeaderInfo.FromJson(
                report.Options.RowHeaderFilePath);
@@ -493,7 +492,8 @@ namespace Edam.Data.AssetReport
          foreach (var i in report.Items)
          {
             AppendTableCells(builder, i, _TypeTextMap);
-            builder.AppendRowCellLast(null);
+            //builder.AppendRowCellLast(null);
+            builder.AppendRowCellLast();
 
             if (i.ElementType == ElementType.enumerator)
             {
@@ -521,7 +521,6 @@ namespace Edam.Data.AssetReport
 
          ITableBuilder builder = GetBuilder(file);
          builder.ReportDetails = report;
-         _Builder = builder;
          builder.Name = "Dictionary";
 
          // add Use Cases

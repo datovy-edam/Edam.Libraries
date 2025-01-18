@@ -409,6 +409,7 @@ namespace Edam.Data.Schema.ImportExport
       /// <returns>results log</returns>
       public IResultsLog ToAsset(AssetConsoleArgumentsInfo arguments)
       {
+         string func = "DataSchema::ImportReader::ToAsset";
          m_Arguments = arguments;
 
          IResultsLog resultsLog = new ResultLog();
@@ -421,6 +422,14 @@ namespace Edam.Data.Schema.ImportExport
 
          var uriList = UriResourceInfo.GetUriList(
            arguments.UriList, UriResourceType.xlsx);
+
+         if (uriList.Count <= 0)
+         {
+            ResultLog.Trace(
+               message: "No files to process found (check file extentions).", 
+               source: func, SeverityLevel.Info);
+         }
+
          foreach (var fname in uriList)
          {
             var docList = ExcelDocumentReader.ReadDocument(
@@ -470,6 +479,12 @@ namespace Edam.Data.Schema.ImportExport
                   }
                   arguments.AssetDataItems.AddRange(assets);
                }
+            }
+            else
+            {
+               ResultLog.Trace(
+                  message: "TAB (" + arguments.Domain.DomainId + ") not found.",
+                  source: func, SeverityLevel.Info);
             }
          }
          resultsLog.Succeeded();

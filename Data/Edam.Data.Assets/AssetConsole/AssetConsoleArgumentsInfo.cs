@@ -538,6 +538,10 @@ namespace Edam.Data.AssetConsole
 
          // ... Project
          copy.ProjectName = args.ProjectName;
+
+         // ... Report
+         copy.Report = args.Report;
+
          return copy;
       }
 

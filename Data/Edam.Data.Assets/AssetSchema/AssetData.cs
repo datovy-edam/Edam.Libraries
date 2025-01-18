@@ -1,11 +1,7 @@
 ﻿using System;
-using System.Linq;
 using System.Collections.Generic;
-using System.Text;
-using Newtonsoft.Json;
 
 using Edam.Diagnostics;
-using Edam.InOut;
 using Edam.Application;
 using Edam.Data.Asset;
 using Edam.Data.AssetConsole;
@@ -13,7 +9,6 @@ using Edam.Data.AssetManagement;
 using Edam.Text;
 using Edam.Data.AssetUseCases;
 using Edam.Data.AssetReport;
-using System.Security.Cryptography.X509Certificates;
 
 namespace Edam.Data.AssetSchema
 {
