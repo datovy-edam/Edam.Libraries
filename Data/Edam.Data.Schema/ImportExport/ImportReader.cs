@@ -253,8 +253,15 @@ namespace Edam.Data.Schema.ImportExport
                item.TableName != previousAsset.originalTableName)
             {
                previousAsset.PrepareAdditionalColumns();
-               dasset.PrepareTableDefinition(item, item.TableName);
+               var tbl = dasset.PrepareTableDefinition(item, item.TableName);
                dasset.originalTableName = item.TableName;
+
+               // if ColumnName is null the description for the Table
+               if (item.ColumnName == null)
+               {
+                  tbl.Annotation.Clear();
+                  tbl.AddAnnotation(item.ColumnDescription);
+               }
 
                if (entityProperty != null)
                {
@@ -265,7 +272,7 @@ namespace Edam.Data.Schema.ImportExport
 
             // prepare/add table column definition
             var celement = dasset.PrepareColumnDefinition(item);
-            if (xproperty != null)
+            if (xproperty != null && celement != null)
             {
                DdlAsset.UpdateEntityProperty(xproperty, celement);
             }

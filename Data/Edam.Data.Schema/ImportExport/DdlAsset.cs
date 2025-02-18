@@ -249,8 +249,8 @@ namespace Edam.Data.Schema.ImportExport
          return ritem;
       }
 
-      public void PrepareTableDefinition(ImportItemInfo item,
-         string tableOriginalName)
+      public AssetElementInfo<IAssetElement> PrepareTableDefinition(
+         ImportItemInfo item, string tableOriginalName)
       {
          ImportItem = item;
          item.SchemaNamespace = ns;
@@ -273,6 +273,8 @@ namespace Edam.Data.Schema.ImportExport
          resourceCount++;
          Tables.Add(ritem);
          children = new List<AssetElementInfo<IAssetElement>>();
+
+         return ritem;
       }
 
       #endregion
@@ -423,6 +425,11 @@ namespace Edam.Data.Schema.ImportExport
       public AssetElementInfo<IAssetElement> PrepareColumnDefinition(
          ImportItemInfo item)
       {
+         if (item.ColumnName == null)
+         {
+            return null;
+         }
+
          item.TableName = item.TableName.Trim();
          item.ColumnName = item.ColumnName.Trim();
 
@@ -498,8 +505,11 @@ namespace Edam.Data.Schema.ImportExport
                   item.CharacterMaximumLength = maxLength.Value;
                }
                var element = PrepareColumnDefinition(item);
-               element.Description = eitem.Description;
-               element.Kind = eitem.Kind;
+               if (element != null)
+               {
+                  element.Description = eitem.Description;
+                  element.Kind = eitem.Kind;
+               }
             }
          }
       }
