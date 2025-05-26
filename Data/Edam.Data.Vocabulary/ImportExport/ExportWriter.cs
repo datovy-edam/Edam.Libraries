@@ -170,7 +170,7 @@ namespace Edam.Data.Lexicon.ImportExport
          element.OriginalElementName = item.ElementName;
          element.Synonyms = String.Empty;
          element.Aliases = String.Empty;
-         element.Tags = String.Empty;
+         element.Tags = item.Tags;
          element.Confidence = 1;
 
          // TODO: provide option to use Element Name or Description
