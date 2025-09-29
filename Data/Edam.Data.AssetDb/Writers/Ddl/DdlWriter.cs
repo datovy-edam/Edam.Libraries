@@ -90,6 +90,7 @@ public class DdlWriter : SchemaWriterAbstract<AssetConsoleArgumentsInfo>
                throw new Exception("Element with no-namespace found.");
             }
 
+            // TODO: make sure that i.Type value is "i.EntityQualifiedNameText"
             //// get type name
             //var typeName = String.IsNullOrWhiteSpace(i.Type) ?
             //   i.EntityQualifiedNameText : i.Type;
