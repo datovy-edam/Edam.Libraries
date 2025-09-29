@@ -51,7 +51,12 @@ namespace Edam.Data.AssetManagement
       public DateTime? ExpiredDate { get; set; }
       public string Root { get; set; }
       public string Domain { get; set; }
+
+      /// <summary>
+      /// Entity Type - Parent Element Name
+      /// </summary>
       public string Type { get; set; }
+
       public string Element { get; set; }
       public string BatchId { get; set; }
       public string Tags { get; set; }

@@ -592,7 +592,7 @@ namespace Edam.Json.JsonSchema
                   i.ElementType = ElementType.reference;
                   i.ElementQualifiedName = new QualifiedNameInfo(
                      i.TypeQualifiedName.Prefix,
-                     i.TypeQualifiedName.OriginalName + "_Reference");
+                     i.TypeQualifiedName.OriginalName);
                   JsonQualifiedNameInfo.CheckQualifiedName(
                      i.ElementQualifiedName, i.Namespaces);
                }

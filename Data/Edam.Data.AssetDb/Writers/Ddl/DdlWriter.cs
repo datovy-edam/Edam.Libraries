@@ -13,205 +13,205 @@ using Edam.Data.AssetConsole;
 using Edam.Data.Schema.SchemaObject;
 using Edam.Data.Schema.DataDefinitionLanguage;
 
-namespace Edam.Data.AssetManagement.Writers.Ddl
+namespace Edam.Data.AssetManagement.Writers.Ddl;
+
+
+public class DdlWriter : SchemaWriterAbstract<AssetConsoleArgumentsInfo>
 {
-   
-   public class DdlWriter : SchemaWriterAbstract<AssetConsoleArgumentsInfo>
+
+   private readonly List<DdlSchema> m_Schemas = new List<DdlSchema>();
+
+   public DdlWriter(AssetConsoleArgumentsInfo context) : base(context)
    {
+      m_Context = context;
+   }
 
-      private readonly List<DdlSchema> m_Schemas = new List<DdlSchema>();
+   public void PrepareSchemas()
+   {
+   }
 
-      public DdlWriter(AssetConsoleArgumentsInfo context) : base(context)
+   /// <summary>
+   /// The "Context" data loaded root is treated as the "Catalog" and then
+   /// the rest is returned as a Schema Set as follows:
+   ///    - Catalogs          - DB
+   ///       - Schemas        - DB Schema
+   ///          - Resources   - DB Schema.Table
+   ///             - Elements - DB Schema.Table.Column
+   /// </summary>
+   /// <returns>instance of SchemaSet is returned...</returns>
+   private static SchemaSet ToSchemaSet(AssetConsoleArgumentsInfo context,
+      DataTextMap textMap)
+   {
+      SchemaSet schemaSet = new SchemaSet();
+      if (schemaSet.Catalogs == null)
+         schemaSet.Catalogs = new List<CatalogInfo>();
+
+      // get Assets Data
+      List<AssetData> assets = context.AssetDataItems;
+
+      // add catalog based on the root URI...
+      String root = context.Namespace.Prefix;
+      CatalogInfo cat = new CatalogInfo(context.ProjectVersionId)
       {
-         m_Context = context;
-      }
+         Namespace = new NamespaceInfo(root, context.Namespace.Uri),
+         Name = root
+      };
+      schemaSet.Catalogs.Add(cat);
 
-      public void PrepareSchemas()
+      // assets are assumed to have types with children in order...
+      foreach (var asset in assets)
       {
-      }
+         NamespaceInfo ns = asset.DefaultNamespace ?? cat.Namespace;
+         if (ns == null)
+            continue;
 
-      /// <summary>
-      /// The "Context" data loaded root is treated as the "Catalog" and then
-      /// the rest is returned as a Schema Set as follows:
-      ///    - Catalogs          - DB
-      ///       - Schemas        - DB Schema
-      ///          - Resources   - DB Schema.Table
-      ///             - Elements - DB Schema.Table.Column
-      /// </summary>
-      /// <returns>instance of SchemaSet is returned...</returns>
-      private static SchemaSet ToSchemaSet(AssetConsoleArgumentsInfo context,
-         DataTextMap textMap)
-      {
-         SchemaSet schemaSet = new SchemaSet();
-         if (schemaSet.Catalogs == null)
-            schemaSet.Catalogs = new List<CatalogInfo>();
+         SchemaInfo schm = null;
+         SchemaInfo resourceSchema = null;
 
-         // get Assets Data
-         List<AssetData> assets = context.AssetDataItems;
+         // add resources based on schema types - DB Schema.Tables
+         ResourceInfo resource = new ResourceInfo();
+         String typeId = String.Empty;
 
-         // add catalog based on the root URI...
-         String root = context.Namespace.Prefix;
-         CatalogInfo cat = new CatalogInfo(context.ProjectVersionId)
+         // go through each asset element type > add those as table columns
+         string typeText = String.Empty;
+         foreach(var i in asset.Items)
          {
-            Namespace = new NamespaceInfo(root, context.Namespace.Uri),
-            Name = root
-         };
-         schemaSet.Catalogs.Add(cat);
+            // find item namespace
+            NamespaceInfo nspace = asset.GetNamespace(i);
 
-         // assets are assumed to have types with children in order...
-         foreach (var asset in assets)
-         {
-            NamespaceInfo ns = asset.DefaultNamespace ?? cat.Namespace;
-            if (ns == null)
-               continue;
-
-            SchemaInfo schm = null;
-            SchemaInfo resourceSchema = null;
-
-            // add resources based on schema types - DB Schema.Tables
-            ResourceInfo resource = new ResourceInfo();
-            String typeId = String.Empty;
-
-            // go through each asset element type > add those as table columns
-            string typeText = String.Empty;
-            foreach(var i in asset.Items)
+            // find or add schema...
+            bool entityNameEmpty = String.IsNullOrWhiteSpace(i.EntityName);
+            if (i.IsType || i.IsRoot || entityNameEmpty)
             {
-               // find item namespace
-               NamespaceInfo nspace = asset.GetNamespace(i);
+               schm = cat.Find(nspace, true);
+            }
+            else if (schm == null && !entityNameEmpty)
+            {
+               throw new Exception("Element with no-namespace found.");
+            }
 
-               // find or add schema...
-               bool entityNameEmpty = String.IsNullOrWhiteSpace(i.EntityName);
-               if (i.IsType || i.IsRoot || entityNameEmpty)
-               {
-                  schm = cat.Find(nspace, true);
-               }
-               else if (schm == null && !entityNameEmpty)
-               {
-                  throw new Exception("Element with no-namespace found.");
-               }
+            //// get type name
+            //var typeName = String.IsNullOrWhiteSpace(i.Type) ?
+            //   i.EntityQualifiedNameText : i.Type;
 
-               // get type name
-               var typeName = String.IsNullOrWhiteSpace(i.Type) ?
-                  i.EntityQualifiedNameText : i.Type;
+            var typeName = i.EntityQualifiedNameText;
 
-               // new type is found? > add resource, and move to next...
-               if ((String.IsNullOrWhiteSpace(typeName) || typeName != typeId))
+            // new type is found? > add resource, and move to next...
+            if ((String.IsNullOrWhiteSpace(typeName) || typeName != typeId))
+            {
+               if (resource.Resources.Count > 0)
                {
-                  if (resource.Resources.Count > 0)
+                  if (resourceSchema == null)
                   {
-                     if (resourceSchema == null)
-                     {
-                        resourceSchema = schm;
-                     }
-                     resourceSchema.Items.Add(resource);
+                     resourceSchema = schm;
                   }
-
-                  if (String.IsNullOrWhiteSpace(i.OriginalName))
-                  {
-                     i.OriginalName = i.ElementQualifiedName.OriginalName;
-                  }
-
-                  resourceSchema = schm;
-                  resource = new ResourceInfo
-                  {
-                     Entity = i,
-                     Name = i.OriginalName,
-                     Namespace = nspace
-                  };
-
-                  typeId = i.Element;
-                  continue;
+                  resourceSchema.Items.Add(resource);
                }
 
-               if (!i.MaxLength.HasValue)
+               if (String.IsNullOrWhiteSpace(i.OriginalName))
                {
-                  i.MaxLength = (int?)i.Length;
+                  i.OriginalName = i.ElementQualifiedName.OriginalName;
                }
 
-               // add elements based on type element - DB Schema.Table.Column
-               ElementInfo e = new ElementInfo
+               resourceSchema = schm;
+               resource = new ResourceInfo
                {
-                  Name = i.ElementQualifiedName.OriginalName,
-                  DataType = i.TypeQualifiedName.OriginalName,
-                  DataSize = i.MaxLength.ToString(),
-                  Element = i
+                  Entity = i,
+                  Name = i.OriginalName,
+                  Namespace = nspace
                };
-               resource.Items.Add(e);
-               resource.Resources.Add(i);
+
+               typeId = i.Element;
+               continue;
             }
-         }
-         return schemaSet;
-      }
-      
-      /// <summary>
-      /// 
-      /// </summary>
-      /// <param name="writer"></param>
-      /// <param name="arguments">It is assumed that it contains the needed
-      /// AssetDataItems with only one merged AssetData</param>
-      public void WriteSet(IWriter writer, AssetConsoleArgumentsInfo arguments)
-      {
-         ElementTransform elementTypeTransform = arguments == null |
-            String.IsNullOrWhiteSpace(arguments.ElementTransform) ?
-               ElementTransform.Unknown :
-               Enum.Parse<ElementTransform>(arguments.ElementTransform);
 
-         DdlSchemaWriter schemaWriter = 
-            new DdlSchemaWriter(arguments.AssetDataItems[0], null);
-         DataTextMap textMap = DataTextMap.FromFile(arguments);
-
-         // Prepare context Resources with arguments Asset list...
-         writer.DataContext = ToSchemaSet(m_Context, textMap);
-
-         // Prepare schema set...
-         DdlSchemaSet s = new DdlSchemaSet(writer, textMap,
-            schemaWriter.Initialize, null, elementTypeTransform);
-
-         s.CompileSchemas((e) =>
-         {
-            return e.Message;
-         });
-
-         // add all namespaces to be proccessed
-         List<NamespaceInfo> ns = new List<NamespaceInfo>();
-         foreach(var i in arguments.AssetDataItems)
-         {
-            foreach(var n in i.Namespaces)
+            if (!i.MaxLength.HasValue)
             {
-               ns.Add(n);
+               i.MaxLength = (int?)i.Length;
             }
+
+            // add elements based on type element - DB Schema.Table.Column
+            ElementInfo e = new ElementInfo
+            {
+               Name = i.ElementQualifiedName.OriginalName,
+               DataType = i.TypeQualifiedName.OriginalName,
+               DataSize = i.MaxLength.ToString(),
+               Element = i
+            };
+            resource.Items.Add(e);
+            resource.Resources.Add(i);
          }
-
-         s.GenerateSchemas(ns);
       }
+      return schemaSet;
+   }
+   
+   /// <summary>
+   /// 
+   /// </summary>
+   /// <param name="writer"></param>
+   /// <param name="arguments">It is assumed that it contains the needed
+   /// AssetDataItems with only one merged AssetData</param>
+   public void WriteSet(IWriter writer, AssetConsoleArgumentsInfo arguments)
+   {
+      ElementTransform elementTypeTransform = arguments == null |
+         String.IsNullOrWhiteSpace(arguments.ElementTransform) ?
+            ElementTransform.Unknown :
+            Enum.Parse<ElementTransform>(arguments.ElementTransform);
 
-      public static void WriteCodeSets(AssetConsoleArgumentsInfo arguments)
+      DdlSchemaWriter schemaWriter = 
+         new DdlSchemaWriter(arguments.AssetDataItems[0], null);
+      DataTextMap textMap = DataTextMap.FromFile(arguments);
+
+      // Prepare context Resources with arguments Asset list...
+      writer.DataContext = ToSchemaSet(m_Context, textMap);
+
+      // Prepare schema set...
+      DdlSchemaSet s = new DdlSchemaSet(writer, textMap,
+         schemaWriter.Initialize, null, elementTypeTransform);
+
+      s.CompileSchemas((e) =>
       {
-         IWriter writer = new FolderWriter(
-            arguments.OutFilePath, arguments.OutFileName + ".codes",
-            arguments.OutFileExtension);
+         return e.Message;
+      });
 
-      }
-
-      /// <summary>
-      /// Prepare a DDL file using given Assets Dictionary context.
-      /// </summary>
-      /// <param name="context">Assets Data Dictionary DB context</param>
-      /// <param name="arguments">Details needed to process request</param>
-      public static void WriteSchema(AssetConsoleArgumentsInfo arguments)
+      // add all namespaces to be proccessed
+      List<NamespaceInfo> ns = new List<NamespaceInfo>();
+      foreach(var i in arguments.AssetDataItems)
       {
-         IWriter writer = new FolderWriter(
-            arguments.OutFilePath, arguments.OutFileName,
-            arguments.OutFileExtension);
-
-         DdlWriter wr = new DdlWriter(arguments);
-         wr.PrepareSchemas();
-
-         writer.Open();
-         wr.WriteSet(writer, arguments);
-         writer.Close();
+         foreach(var n in i.Namespaces)
+         {
+            ns.Add(n);
+         }
       }
 
+      s.GenerateSchemas(ns);
+   }
+
+   public static void WriteCodeSets(AssetConsoleArgumentsInfo arguments)
+   {
+      IWriter writer = new FolderWriter(
+         arguments.OutFilePath, arguments.OutFileName + ".codes",
+         arguments.OutFileExtension);
+
+   }
+
+   /// <summary>
+   /// Prepare a DDL file using given Assets Dictionary context.
+   /// </summary>
+   /// <param name="context">Assets Data Dictionary DB context</param>
+   /// <param name="arguments">Details needed to process request</param>
+   public static void WriteSchema(AssetConsoleArgumentsInfo arguments)
+   {
+      IWriter writer = new FolderWriter(
+         arguments.OutFilePath, arguments.OutFileName,
+         arguments.OutFileExtension);
+
+      DdlWriter wr = new DdlWriter(arguments);
+      wr.PrepareSchemas();
+
+      writer.Open();
+      wr.WriteSet(writer, arguments);
+      writer.Close();
    }
 
 }
