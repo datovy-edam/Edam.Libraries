@@ -24,7 +24,7 @@ namespace Edam.Data.Schema.ImportExport
       public string ColumnName { get; set; }
       public long? OrdinalPosition { get; set; }
       public string DataType { get; set; }
-      public decimal? CharacterMaximumLength { get; set; }
+      public int? CharacterMaximumLength { get; set; }
       public string ConstraintType { get; set; }
       public string ConstraintTableSchema { get; set; }
       public string ConstraintTableName { get; set; }
@@ -36,6 +36,8 @@ namespace Edam.Data.Schema.ImportExport
       public bool IsReadOnly { get; set; } = false;
       public bool IsNullable { get; set; } = false;
       public bool IsIdentity { get; set; } = false;
+
+      public bool DataTypeIsUnsigned { get; set; } = false;
 
       public string Tags { get; set; }
       public string ColumnDescription { get; set; }

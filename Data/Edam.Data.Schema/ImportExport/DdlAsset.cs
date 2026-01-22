@@ -18,6 +18,7 @@ using ObjAssets = Edam.DataObjects.Assets;
 using DocumentFormat.OpenXml.Wordprocessing;
 using Edam.Data.Assets.AssetSchema;
 using DocumentFormat.OpenXml.Office2016.Drawing.ChartDrawing;
+using System.IO;
 
 namespace Edam.Data.Schema.ImportExport
 {
@@ -467,7 +468,7 @@ namespace Edam.Data.Schema.ImportExport
          }
 
          ImportItemInfo item = new ImportItemInfo();
-         decimal? maxLength = null;
+         int? maxLength = null;
 
          item.Dbms = "";
          item.TableCatalog = asset.Name;
@@ -478,11 +479,7 @@ namespace Edam.Data.Schema.ImportExport
          {
             foreach(var eitem in eprop.RecordTrackingItem)
             {
-               maxLength = null;
-               if (decimal.TryParse(eitem.DataSize, out var dataSize))
-               {
-                  maxLength = dataSize;
-               }
+               maxLength = Text.StringReader.GetInteger(eitem.DataSize);
 
                // does the child exists? if so update info and continue...
                var child = children.Find((x) => x.OriginalName == eitem.Name);

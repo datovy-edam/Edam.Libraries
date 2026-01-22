@@ -1,13 +1,13 @@
-﻿using System;
-using System.IO;
-using System.Collections.Generic;
-using Newtonsoft.Json;
-using System.Text.RegularExpressions;
-
+﻿using Edam.Data.Asset;
 // -----------------------------------------------------------------------------
 
 using Edam.Data.AssetConsole;
-using Edam.Data.Asset;
+using Edam.Diagnostics;
+using Newtonsoft.Json;
+using System;
+using System.Collections.Generic;
+using System.IO;
+using System.Text.RegularExpressions;
 
 namespace Edam.Data.AssetManagement
 {
@@ -28,6 +28,8 @@ namespace Edam.Data.AssetManagement
          Element = new List<DataTextElementInfo>();
          ElementProperty = new List<DataTextElementPropertyInfo>();
       }
+
+      #region -- 4.00 - Load Data Map
 
       public static DataTextMap FromFile(String filePath)
       {
@@ -58,6 +60,8 @@ namespace Edam.Data.AssetManagement
          }
          return DataTextMap.FromFile(arguments.TextMapFolderPath + DDL_MAP_FILE);
       }
+
+      #endregion
 
       /// <summary>
       /// Map Text based on given direction.

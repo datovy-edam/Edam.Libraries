@@ -1,31 +1,32 @@
-﻿using System;
+﻿using DocumentFormat.OpenXml.Spreadsheet;
+using Edam.Application;
+using Edam.Data.Asset;
+using Edam.Data.AssetConsole;
+using Edam.Data.AssetManagement;
+using Edam.Data.Assets.AssetSchema;
+using Edam.Data.AssetSchema;
+using Edam.Data.Schema.DataDefinitionLanguage;
+using Edam.DataObjects.Models;
+using Edam.Diagnostics;
+using Edam.Xml.OpenXml;
+using System;
 using System.Collections.Generic;
+using System.Data.SqlTypes;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using ObjAssets = Edam.DataObjects.Assets;
 
 // -----------------------------------------------------------------------------
-using Edam.Data.AssetConsole;
-using Edam.Xml.OpenXml;
-using Edam.Data.Asset;
-using Edam.Application;
-using Edam.Diagnostics;
-using Edam.Data.AssetSchema;
-using Edam.Data.AssetManagement;
-using Edam.DataObjects.Models;
-using Edam.Data.Schema.DataDefinitionLanguage;
-using ObjAssets = Edam.DataObjects.Assets;
-using Edam.Data.Assets.AssetSchema;
-using reader = Edam.Text.StringReader;
-using System.Data.SqlTypes;
 
 namespace Edam.Data.Schema.ImportExport;
-
 
 public class ImportValues
 {
    public List<string> Values { get; set; }
    public List<string> Header { get; set; }
+   public List<List<string>> Rows { get; set; }
+   public List<ImportItemInfo> Items = new List<ImportItemInfo>();
 }
 
 public class ImportReader : IDataAssets
@@ -38,132 +39,6 @@ public class ImportReader : IDataAssets
    private string m_VersionId
    {
       get { return m_Arguments.Project.VersionId; }
-   }
-
-   /// <summary>
-   /// Import an Item (Table, Function, View, or Stored-Procedure)
-   /// </summary>
-   /// <param name="values">list of values</param>
-   /// <returns>instance of ImportItemInfo is returned with info</returns>
-   /// <exception cref="ArgumentException"></exception>
-   public static ImportItemInfo ImportItem(ImportValues values)
-   {
-      String func = "SetValues";
-      if (values.Values.Count > 21)
-      {
-         throw new ArgumentException(CLASS_NAME + "::" + func +
-            ": Expected no more than 13, 15 or 19/21 columns got (" +
-            values.Values.Count.ToString() + ")");
-      }
-
-      ImportItemInfo item = new ImportItemInfo();
-
-      if (values.Values.Count <= 15 && values.Header[11] != null &&
-          values.Header[11].ToUpper() == "CONSTRAINT_TYPE")
-      {
-         item.Dbms = reader.GetString(values.Values[0]);
-         item.TableCatalog = reader.GetString(values.Values[1]);
-         item.TableSchema = reader.GetString(values.Values[2]);
-         item.TableName = reader.GetString(values.Values[3]);
-         item.ColumnName = reader.GetString(values.Values[4]);
-         item.OrdinalPosition = reader.GetLong(values.Values[5]);
-         item.DataType = reader.GetString(values.Values[6]);
-         item.CharacterMaximumLength = reader.GetDecimal(values.Values[7]);
-
-         item.Precision = reader.GetInteger(values.Values[8]);
-         item.Scale = reader.GetInteger(values.Values[9]);
-         item.IsNullable = reader.GetBool(values.Values[10]);
-
-         item.ConstraintType = reader.GetString(values.Values[11]);
-         item.ConstraintTableSchema = reader.GetString(values.Values[12]);
-         item.ConstraintTableName = reader.GetString(values.Values[13]);
-         item.ConstraintColumnName = reader.GetString(values.Values[14]);
-      }
-      else if (values.Values.Count <= 15)
-      {
-         item.Dbms = reader.GetString(values.Values[0]);
-         item.TableCatalog = reader.GetString(values.Values[1]);
-         item.TableSchema = reader.GetString(values.Values[2]);
-         item.TableName = reader.GetString(values.Values[3]);
-         item.ColumnName = reader.GetString(values.Values[4]);
-         item.OrdinalPosition = reader.GetLong(values.Values[5]);
-         item.DataType = reader.GetString(values.Values[6]);
-         item.CharacterMaximumLength = reader.GetDecimal(values.Values[7]);
-         item.ConstraintType = reader.GetString(values.Values[8]);
-         item.ConstraintTableSchema = reader.GetString(values.Values[9]);
-         item.ConstraintTableName = reader.GetString(values.Values[10]);
-         item.ConstraintColumnName = reader.GetString(values.Values[11]);
-
-         item.IsIdentity = (values.Values.Count > 12) ?
-            reader.GetBool(values.Values[12]) : false;
-         item.Tags = (values.Values.Count > 13) ?
-            reader.GetString(values.Values[13]) : String.Empty;
-         item.ColumnDescription = (values.Values.Count > 14) ?
-            reader.GetString(values.Values[14]) : String.Empty;
-      }
-
-      // the following support an enhace schema with all object types
-      else if (values.Values.Count >= 19)
-      {
-         item.Dbms = reader.GetString(values.Values[0]);
-         item.TableCatalog = reader.GetString(values.Values[1]);
-         item.TableSchema = reader.GetString(values.Values[2]);
-         item.ObjectName = reader.GetString(values.Values[3]);
-         item.ColumnName = reader.GetString(values.Values[4]);
-         item.OrdinalPosition = reader.GetLong(values.Values[5]);
-         item.DataType = reader.GetString(values.Values[6]);
-         item.CharacterMaximumLength = reader.GetDecimal(values.Values[7]);
-
-         item.Precision = reader.GetInteger(values.Values[8]);
-         item.Scale = reader.GetInteger(values.Values[9]);
-
-         item.IsOutput = reader.GetBool(values.Values[10]);
-         item.IsReadOnly = reader.GetBool(values.Values[11]);
-         item.IsNullable = reader.GetBool(values.Values[12]);
-         item.IsIdentity = reader.GetBool(values.Values[13]);
-
-         string otype = reader.GetString(values.Values[14]).ToUpper();
-         switch (otype)
-         {
-            case "PROCEDURE":
-               item.ObjectType = ElementType.procedure;
-               break;
-            case "FUNCTION":
-               item.ObjectType = ElementType.function;
-               break;
-            case "VIEW":
-               item.ObjectType = ElementType.view;
-               break;
-            case "TABLE":
-            default:
-               item.ObjectType = ElementType.type;
-               break;
-         }
-
-         item.ConstraintType = reader.GetString(values.Values[15]);
-         item.ConstraintTableSchema = reader.GetString(values.Values[16]);
-         item.ConstraintTableName = reader.GetString(values.Values[17]);
-         item.ConstraintColumnName = reader.GetString(values.Values[18]);
-
-         if (item.ObjectType == ElementType.procedure ||
-             item.ObjectType == ElementType.function)
-         {
-            item.ColumnName = item.ColumnName.Replace("@", "");
-         }
-
-         if (values.Values.Count == 21)
-         {
-            item.Tags = reader.GetString(values.Values[19]);
-            item.ColumnDescription = reader.GetString(values.Values[20]);
-         }
-      }
-
-      if (item.ConstraintType == "P")
-         item.ConstraintType = AssetElementConstraintInfo.KEY;
-      else if (item.ConstraintType == "R")
-         item.ConstraintType = AssetElementConstraintInfo.FOREIGN_KEY;
-
-      return item;
    }
 
    public List<string> GetFileList(AssetConsoleArgumentsInfo arguments)
@@ -445,7 +320,6 @@ public class ImportReader : IDataAssets
 
       IResultsLog resultsLog = new ResultLog();
 
-      List<ImportItemInfo> rows = new List<ImportItemInfo>();
       NamespaceList namespaces = new NamespaceList();
       namespaces.Add(arguments.Namespace);
 
@@ -475,27 +349,12 @@ public class ImportReader : IDataAssets
             fname, arguments.Domain.DomainId);
          if (results.Success)
          {
-
-            values.Header = results.Data[0];
-            foreach (var list in results.Data)
-            {
-               // skip empty rows
-               if (ExcelDocumentReader.IsEmptyList(list))
-               {
-                  continue;
-               }
-               values.Values = list;
-               rows.Add(ImportItem(values));
-            }
-
-            // remove header row
-            if (rows.Count > 0)
-            {
-               rows.RemoveAt(0);
-            }
+            values.Rows = results.Data;
+            var result = ImportAsset.ImportAssetData(
+               values, arguments.TextMapFilePath);
 
             // prepare Asset Data definitions (one per schema)
-            var assets = ToAssetData(doc, rows, namespaces,
+            var assets = ToAssetData(doc, values.Items, namespaces,
                arguments.RootElementName);
 
             if (assets != null)
@@ -504,7 +363,7 @@ public class ImportReader : IDataAssets
                {
                   arguments.AssetDataItems = new AssetDataList();
                }
-               foreach(var a in assets)
+               foreach (var a in assets)
                {
                   a.Namespaces.Add(NamespaceInfo.GetW3CNamespace());
                }

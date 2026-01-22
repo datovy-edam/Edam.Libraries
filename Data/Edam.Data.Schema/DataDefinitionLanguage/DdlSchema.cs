@@ -157,7 +157,7 @@ namespace Edam.Data.Schema.DataDefinitionLanguage
          builder.AppendLine(m_Indent.Identation + "[" +
             element.ElementQualifiedName.OriginalName + "] " +
             GetTypeDeclaration(element,
-               element.TypeQualifiedName.OriginalName,
+               element.TypeQualifiedName.OriginalName.ToUpperInvariant(),
                element.MaxLength.ToString()) +
             tail);
       }
@@ -229,6 +229,7 @@ namespace Edam.Data.Schema.DataDefinitionLanguage
             base.GetTypeDeclaration(element, dataType, dataSize);
          DataTextElementInfo delement = mapResult as DataTextElementInfo;
 
+         string defaultType = VARCHAR.ToUpper();
          if (delement == null)
          {
             DataTextMapItem mapItem = mapResult as DataTextMapItem;
@@ -236,14 +237,39 @@ namespace Edam.Data.Schema.DataDefinitionLanguage
             {
                if (mapItem.TargetText.ToUpper() != VARCHAR.ToUpper())
                {
-                  return mapItem.TargetText.ToUpper();
+                  defaultType = mapItem.TargetText.ToUpper();
                }
+            }
+         }
+
+         var itype = dataType.ToUpperInvariant();
+         if (itype == "DECIMAL" ||
+            itype == "NUMERIC" ||
+            itype == "NUMBER")
+         {
+            if (element.Precision.HasValue && element.Scale.HasValue &&
+               (element.Precision.Value > 0 || element.Scale.Value > 0))
+            {
+               dataSize = "(" + element.Precision.Value.ToString() + "," +
+                  element.Scale.Value.ToString() + ")";
+               return dataType.ToUpper() + dataSize;
             }
          }
 
          // TODO: set the default size in the settings or as a config param...
          string dsize = dataSize == "-1" || 
             String.IsNullOrWhiteSpace(dataSize) ? "256" : dataSize;
+
+         if (element.MaxLength.HasValue &&
+            element.MaxLength.Value >= int.MaxValue)
+         {
+            dsize = "MAX";
+         }
+
+         if (defaultType != VARCHAR.ToUpper())
+         {
+            return defaultType;
+         }
 
          string dtype = VARCHAR;
          if (delement == null)
@@ -273,7 +299,7 @@ namespace Edam.Data.Schema.DataDefinitionLanguage
          }
 
          return GetTypeDeclaration(element,
-               element.TypeQualifiedName.Name,
+               element.TypeQualifiedName.OriginalName.ToUpperInvariant(),
                element.MaxLength.ToString());
       }
 
