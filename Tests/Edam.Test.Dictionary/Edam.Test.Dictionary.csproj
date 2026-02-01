@@ -29,13 +29,8 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\..\Data\Edam.Data.Dictionary\Edam.Data.Dictionary.csproj" />
     <ProjectReference Include="..\Edam.Test..Library\Edam.Test.Library.csproj" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <Reference Include="Edam.Data.Dictionary">
-      <HintPath>..\..\Data\Edam.Data.Dictionary\bin\Debug\net6.0\Edam.Data.Dictionary.dll</HintPath>
-    </Reference>
   </ItemGroup>
 
 </Project>
